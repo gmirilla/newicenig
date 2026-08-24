@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "Bash(composer -V)",
+      "Bash(npm -v)",
+      "Bash(mysql --version)",
+      "Bash(ls \"C:/xampp/mysql/bin\" 2>&1 | head -20)",
+      "Read(//c/xampp/mysql/bin/**)",
+      "Bash(tasklist)",
+      "Bash(echo \"---exit:$?---\")",
+      "Bash(\"C:/xampp/mysql/bin/mysql.exe\" -u root -e \"SELECT VERSION\\(\\);\")",
+      "Bash(ls \"C:/xampp\" | grep -i mysql)",
+      "Read(//c/xampp/**)",
+      "Bash(cmd //c \"C:\\\\\\\\xampp\\\\\\\\mysql_start.bat\")",
+      "Bash(netstat -ano)",
+      "Bash(ls -la \"C:/xampp/mysql/data\" 2>&1 | grep -i \"\\\\.err\\\\|\\\\.log\" | head -10)",
+      "Read(//c/xampp/mysql/data/**)",
+      "Bash(tail -n 40 \"C:/xampp/mysql/data/mysql_error.log\")",
+      "Bash(composer create-project *)",
+      "Bash(rm -rf C:/laravel/_newicenig_scaffold)",
+      "Bash(composer require *)",
+      "Bash(php artisan *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(composer remove *)",
+      "Bash(./vendor/bin/pest --init)",
+      "Read(//tmp/**)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(taskkill //F //FI \"WINDOWTITLE eq artisan*\")",
+      "Bash(git init *)",
+      "Bash(git config *)",
+      "Bash(grep -i \"\\\\.env$\")",
+      "Bash(echo \"exit:$?\")",
+      "Bash(git add *)"
+    ]
+  }
+}

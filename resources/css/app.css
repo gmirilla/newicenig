@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@theme {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand green, anchored on ICEN's existing identity (#16a34a) */
+    --color-brand-50: #f0fdf4;
+    --color-brand-100: #dcfce7;
+    --color-brand-200: #bbf7d0;
+    --color-brand-300: #86efac;
+    --color-brand-400: #4ade80;
+    --color-brand-500: #16a34a;
+    --color-brand-600: #15803d;
+    --color-brand-700: #166534;
+    --color-brand-800: #14532d;
+    --color-brand-900: #0f3d22;
+    --color-brand-950: #052e16;
+
+    /* Accent, used sparingly (badges, secondary CTAs) */
+    --color-accent-400: #fb7154;
+    --color-accent-500: #f84525;
+    --color-accent-600: #dc2f10;
+
+    /* Semantic aliases */
+    --color-success: var(--color-brand-600);
+    --color-danger: var(--color-accent-600);
+    --color-warning: #d97706;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 6px -1px rgb(0 0 0 / 0.06);
+    --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.06);
+}
