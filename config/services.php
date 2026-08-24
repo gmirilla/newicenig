@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    // Paystack credentials are managed at Admin → Membership → Paystack Settings (App\Settings\PaystackSettings),
+    // not here. PAYSTACK_* env vars only seed the initial values the first time that settings migration runs.
+
 ];

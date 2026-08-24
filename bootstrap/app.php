@@ -12,7 +12,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'membership.active' => \App\Http\Middleware\EnsureMembershipIsActive::class,
+            'paystack.signature' => \App\Http\Middleware\VerifyPaystackSignature::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'payments/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
