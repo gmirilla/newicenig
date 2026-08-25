@@ -84,6 +84,22 @@ return [
             ]) : [],
         ],
 
+        // Read-only source for the one-time legacy data migration (see
+        // app/Console/Commands/LegacyMigrateCommand.php). Points at a restored
+        // copy of the old app's database — never the live production database
+        // directly, and never written to by this application.
+        'legacy' => [
+            'driver' => 'mariadb',
+            'host' => env('LEGACY_DB_HOST', '127.0.0.1'),
+            'port' => env('LEGACY_DB_PORT', '3306'),
+            'database' => env('LEGACY_DB_DATABASE', 'icen_legacy_import'),
+            'username' => env('LEGACY_DB_USERNAME', 'root'),
+            'password' => env('LEGACY_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),

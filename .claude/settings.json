@@ -59,7 +59,11 @@
       "Bash(mv 2026_08_24_082959_create_payment_gateways_table.php 2026_08_24_082958_create_payment_gateways_table.php)",
       "Bash(mv 2026_08_24_083000_create_payments_table.php 2026_08_24_082959_create_payments_table.php)",
       "Bash(xargs grep -l \"^class Pdf\\\\|^namespace\")",
-      "Bash(grep -L 'use App\\\\\\\\Filament\\\\\\\\Concerns\\\\\\\\RestrictedToAdmins;' app/Filament/Resources/Posts/PostResource.php app/Filament/Resources/Events/EventResource.php app/Filament/Resources/TeamMembers/TeamMemberResource.php app/Filament/Resources/Testimonials/TestimonialResource.php app/Filament/Resources/Downloads/DownloadResource.php app/Filament/Resources/MembershipTiers/MembershipTierResource.php app/Filament/Resources/PaymentGateways/PaymentGatewayResource.php)"
+      "Bash(grep -L 'use App\\\\\\\\Filament\\\\\\\\Concerns\\\\\\\\RestrictedToAdmins;' app/Filament/Resources/Posts/PostResource.php app/Filament/Resources/Events/EventResource.php app/Filament/Resources/TeamMembers/TeamMemberResource.php app/Filament/Resources/Testimonials/TestimonialResource.php app/Filament/Resources/Downloads/DownloadResource.php app/Filament/Resources/MembershipTiers/MembershipTierResource.php app/Filament/Resources/PaymentGateways/PaymentGatewayResource.php)",
+      "Bash(ls \"C:/laravel/icenig.org.ng/icenig.org.ng/storage/app/public\" 2>&1 | head -30)",
+      "Read(//c/laravel/icenig.org.ng/icenig.org.ng/storage/app/public/**)",
+      "Read(//c/laravel/icenig.org.ng/icenig.org.ng/database/seeders/**)",
+      "Bash(./vendor/bin/pest --compact)"
     ]
   }
 }
