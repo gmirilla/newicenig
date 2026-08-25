@@ -21,15 +21,26 @@
     --color-brand-900: #0f3d22;
     --color-brand-950: #052e16;
 
-    /* Accent, used sparingly (badges, secondary CTAs) */
-    --color-accent-400: #fb7154;
-    --color-accent-500: #f84525;
-    --color-accent-600: #dc2f10;
+    /* Accent gold — ICEN's institutional secondary color (wordmark, dark-surface text,
+       premium highlights), matched to icenig.org.ng's amber accent */
+    --color-accent-50: #fffbeb;
+    --color-accent-100: #fef3c7;
+    --color-accent-200: #fde68a;
+    --color-accent-300: #fcd34d;
+    --color-accent-400: #fbbf24;
+    --color-accent-500: #f59e0b;
+    --color-accent-600: #d97706;
+    --color-accent-700: #b45309;
+    --color-accent-800: #92400e;
+    --color-accent-900: #78350f;
 
-    /* Semantic aliases */
+    /* Deep surface green for hero/footer treatments, matched to icenig.org.ng's footer (#07412d) */
+    --color-brand-surface: #07412d;
+
+    /* Semantic aliases — danger stays a true red regardless of accent, since accent is now gold */
     --color-success: var(--color-brand-600);
-    --color-danger: var(--color-accent-600);
-    --color-warning: #d97706;
+    --color-danger: #dc2626;
+    --color-warning: var(--color-accent-600);
 
     --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 6px -1px rgb(0 0 0 / 0.06);
     --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.06);

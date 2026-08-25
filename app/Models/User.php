@@ -21,9 +21,18 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
+    /**
+     * Roles that gate access to the admin panel by name. Protected from being
+     * renamed or deleted (see AppServiceProvider) since canAccessPanel() checks
+     * these names directly — renaming one would silently lock out everyone who has it.
+     *
+     * @var array<int, string>
+     */
+    public const PANEL_ROLES = ['super-admin', 'admin', 'registrar'];
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super-admin', 'admin', 'registrar']);
+        return $this->hasAnyRole(self::PANEL_ROLES);
     }
 
     public function memberships(): HasMany
@@ -39,6 +48,20 @@ class User extends Authenticatable implements FilamentUser
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Where to send this user after login/registration/etc. Staff accounts with no
+     * membership of their own skip the (otherwise empty) member portal and go
+     * straight to the admin panel; everyone else lands on the member dashboard.
+     */
+    public function defaultDashboardUrl(): string
+    {
+        if ($this->hasAnyRole(self::PANEL_ROLES) && ! $this->currentMembership()) {
+            return '/admin';
+        }
+
+        return route('member.dashboard', absolute: false);
     }
 
     /**

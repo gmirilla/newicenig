@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserMemberships;
 use App\Filament\Resources\UserMemberships\Pages\CreateUserMembership;
 use App\Filament\Resources\UserMemberships\Pages\EditUserMembership;
 use App\Filament\Resources\UserMemberships\Pages\ListUserMemberships;
+use App\Filament\Resources\UserMemberships\RelationManagers\FilesRelationManager;
 use App\Filament\Resources\UserMemberships\Schemas\UserMembershipForm;
 use App\Filament\Resources\UserMemberships\Tables\UserMembershipsTable;
 use App\Models\UserMembership;
@@ -37,7 +38,7 @@ class UserMembershipResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            FilesRelationManager::class,
         ];
     }
 

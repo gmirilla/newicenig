@@ -13,8 +13,8 @@
 
         @if ($tiers->isEmpty())
             <x-card>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">No membership tiers are open right now</h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">No membership tiers are open right now</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     Add tiers from the admin panel under Membership → Tiers, or get in touch to enquire.
                 </p>
                 <div class="mt-6">
@@ -26,16 +26,16 @@
                 @foreach ($tiers as $tier)
                     <x-card class="flex h-full flex-col justify-between">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $tier->name }}</h3>
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ $tier->name }}</h3>
                             @if ($tier->abbreviation)
                                 <p class="text-sm text-brand-600 dark:text-brand-400">{{ $tier->abbreviation }}</p>
                             @endif
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ $tier->description }}</p>
-                            <p class="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
+                            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ $tier->description }}</p>
+                            <p class="mt-4 text-2xl font-bold text-slate-900 dark:text-white">
                                 {{ $tier->currency }} {{ number_format($tier->registration_fee, 0) }}
                             </p>
                             @if (filled($tier->benefits))
-                                <ul class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                <ul class="mt-4 space-y-2 text-sm text-slate-600 dark:text-slate-400">
                                     @foreach ($tier->benefits as $benefit)
                                         <li class="flex items-start gap-2">
                                             <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

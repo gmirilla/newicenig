@@ -29,12 +29,12 @@ new #[Layout('layouts.guest')] class extends Component
 
         session(['auth.password_confirmed_at' => time()]);
 
-        $this->redirectIntended(default: route('member.dashboard', absolute: false), navigate: true);
+        $this->redirectIntended(default: Auth::user()->defaultDashboardUrl(), navigate: true);
     }
 }; ?>
 
 <div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
         {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
     </div>
 

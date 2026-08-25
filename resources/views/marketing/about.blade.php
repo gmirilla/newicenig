@@ -19,7 +19,7 @@
                     Our members work across banking, government, academia, consulting, and industry — united by a
                     shared commitment to professional excellence and ethical practice.
                 </p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
                     This page is placeholder content. Edit it from the admin panel under Content → Pages (slug: <code>about</code>).
                 </p>
             @endif

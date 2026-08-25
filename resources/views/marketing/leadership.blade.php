@@ -8,7 +8,7 @@
         />
 
         @if ($teamMembers->isEmpty())
-            <p class="mt-14 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p class="mt-14 text-center text-sm text-slate-500 dark:text-slate-400">
                 No council members published yet. Add them from the admin panel under Content → Team Members.
             </p>
         @else
@@ -24,7 +24,7 @@
                                 </div>
                             @endif
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $member->name }}</h3>
+                                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ $member->name }}</h3>
                                 <p class="text-sm text-brand-600 dark:text-brand-400">{{ $member->role_title }}</p>
                             </div>
                         </div>

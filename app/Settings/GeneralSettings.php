@@ -20,6 +20,14 @@ class GeneralSettings extends Settings
 
     public ?string $linkedin_url;
 
+    /**
+     * Internal staff addresses notified whenever a membership payment or renewal
+     * succeeds. Each notification includes a PDF of the member's information.
+     *
+     * @var array<int, string>
+     */
+    public array $payment_notification_recipients;
+
     public static function group(): string
     {
         return 'general';

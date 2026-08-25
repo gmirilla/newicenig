@@ -13,7 +13,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-gray-50 font-sans text-gray-900 antialiased dark:bg-gray-950">
+    <body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-950">
         <div class="flex min-h-screen flex-col items-center justify-center px-6 py-12">
             <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
                 <img src="{{ asset('images/icen-mark.jpg') }}" alt="ICEN" class="h-14 w-14 rounded-full object-cover">

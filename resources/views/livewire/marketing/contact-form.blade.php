@@ -69,7 +69,7 @@ new class extends Component
                     wire:model="message"
                     rows="5"
                     required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                    class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
                 ></textarea>
                 <x-input-error :messages="$errors->get('message')" class="mt-2" />
             </div>

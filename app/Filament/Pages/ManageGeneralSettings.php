@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Settings\GeneralSettings;
 use BackedEnum;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -21,7 +22,9 @@ class ManageGeneralSettings extends Page implements HasForms
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Administration';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Site Settings';
 
@@ -60,6 +63,15 @@ class ManageGeneralSettings extends Page implements HasForms
                         TextInput::make('facebook_url')->label('Facebook')->url(),
                         TextInput::make('twitter_url')->label('X / Twitter')->url(),
                         TextInput::make('linkedin_url')->label('LinkedIn')->url(),
+                    ]),
+                Section::make('Payment notifications')
+                    ->description('Whenever a membership payment or renewal succeeds, an email with a PDF of the member\'s information is sent to this approved list.')
+                    ->components([
+                        TagsInput::make('payment_notification_recipients')
+                            ->label('Approved mailing list')
+                            ->placeholder('Add an email and press Enter')
+                            ->splitKeys([',', ' ', 'Tab'])
+                            ->columnSpanFull(),
                     ]),
             ])
             ->statePath('data');

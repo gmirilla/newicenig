@@ -5,8 +5,8 @@
         </a>
 
         <x-badge variant="brand" class="mt-6">{{ ucfirst($post->category) }}</x-badge>
-        <h1 class="mt-3 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">{{ $post->title }}</h1>
-        <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">
+        <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">{{ $post->title }}</h1>
+        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
             {{ $post->published_at?->format('F j, Y') }}
             @if ($post->author)
                 &middot; {{ $post->author->name }}

@@ -13,7 +13,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-white font-sans text-gray-900 antialiased dark:bg-gray-950 dark:text-white">
+    <body class="bg-accent-50/40 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-white">
         <x-site-nav />
 
         <main>

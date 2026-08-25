@@ -4,12 +4,15 @@ namespace App\Actions\Payments;
 
 use App\Enums\MembershipStatus;
 use App\Enums\PaymentStatus;
+use App\Mail\MembershipPaymentNotification;
 use App\Models\MembershipRenewal;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\UserMembership;
 use App\Notifications\SetPasswordInvite;
+use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class HandleSuccessfulPayment
@@ -35,9 +38,27 @@ class HandleSuccessfulPayment
 
         if ($payable instanceof UserMembership) {
             $this->handleMembershipPayment($payable);
+            $this->notifyApprovedMailingList($payable, $payment, 'registration');
         } elseif ($payable instanceof MembershipRenewal) {
             $this->handleRenewalPayment($payable);
+            $this->notifyApprovedMailingList($payable->userMembership, $payment, 'renewal');
         }
+    }
+
+    /**
+     * Email the org's approved internal mailing list (configured in Site Settings)
+     * whenever a membership payment or renewal succeeds, attaching a PDF of the
+     * member's information for their records.
+     */
+    protected function notifyApprovedMailingList(UserMembership $membership, Payment $payment, string $context): void
+    {
+        $recipients = app(GeneralSettings::class)->payment_notification_recipients;
+
+        if (empty($recipients)) {
+            return;
+        }
+
+        Mail::to($recipients)->send(new MembershipPaymentNotification($membership, $payment, $context));
     }
 
     protected function handleMembershipPayment(UserMembership $membership): void

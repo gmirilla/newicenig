@@ -4,7 +4,7 @@
             &larr; Back to events
         </a>
 
-        <h1 class="mt-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">{{ $event->title }}</h1>
+        <h1 class="mt-6 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">{{ $event->title }}</h1>
 
         @if ($event->coverUrl())
             <img src="{{ $event->coverUrl() }}" alt="{{ $event->title }}" class="mt-8 w-full rounded-xl object-cover">

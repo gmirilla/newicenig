@@ -25,6 +25,8 @@ class DownloadResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Content';
 
+    protected static ?int $navigationSort = 6;
+
     public static function form(Schema $schema): Schema
     {
         return DownloadForm::configure($schema);

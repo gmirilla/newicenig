@@ -6,8 +6,8 @@
             </svg>
         </div>
 
-        <h1 class="mt-6 text-2xl font-bold text-gray-900 dark:text-white">Payment received</h1>
-        <p class="mt-3 text-gray-600 dark:text-gray-400">
+        <h1 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Payment received</h1>
+        <p class="mt-3 text-slate-600 dark:text-slate-400">
             @if ($payment->status->value === 'successful')
                 Thank you — your payment of {{ $payment->currency }} {{ number_format($payment->amount, 2) }} was successful.
                 @if (! $payment->user_id)
