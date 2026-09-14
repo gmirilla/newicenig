@@ -1,12 +1,11 @@
 @php
     $links = [
-        ['label' => 'About', 'route' => 'about'],
-        ['label' => 'Leadership', 'route' => 'leadership'],
+        
+   
         ['label' => 'Membership', 'route' => 'membership'],
-        ['label' => 'News', 'route' => 'news.index'],
-        ['label' => 'Events', 'route' => 'events.index'],
+
         ['label' => 'Resources', 'route' => 'resources.index'],
-        ['label' => 'Contact', 'route' => 'contact'],
+        ['label' => 'Contact', 'route' => 'https://new.icennig.org.ng/contact'],
     ];
 @endphp
 
