@@ -3,7 +3,6 @@
         
    
         ['label' => 'Membership', 'route' => 'membership'],
-
         ['label' => 'Resources', 'route' => 'resources.index'],
         ['label' => 'Contact', 'route' => 'https://new.icennig.org.ng/contact'],
     ];
