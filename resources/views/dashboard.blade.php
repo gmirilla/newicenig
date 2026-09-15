@@ -91,6 +91,7 @@
         </div>
 
         @if ($membership?->isActive())
+        <!-- disable rendering oof automated certificate download for now in case client need it implemented later
             <x-card>
                 <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
@@ -100,6 +101,7 @@
                     <x-button href="{{ route('member.certificate') }}" target="_blank">Download certificate</x-button>
                 </div>
             </x-card>
+        -->
 
             <x-card>
                 <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">

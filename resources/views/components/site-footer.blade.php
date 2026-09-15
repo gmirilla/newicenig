@@ -10,7 +10,7 @@
                     The Institute of Chartered Economists of Nigeria — advancing the economics profession through certification, standards, and continuing professional development.
                 </p>
             </div>
-
+<!-- Comment out Footer links for now, we can add them back later if needed
             <div>
                 <h3 class="text-sm font-semibold text-accent-300">Organization</h3>
                 <ul class="mt-4 space-y-2 text-sm text-accent-100/80">
@@ -30,6 +30,7 @@
                 </ul>
             </div>
         </div>
+    -->
 
         <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-accent-800 pt-6 sm:flex-row">
             <p class="text-sm text-accent-300/80">&copy; {{ date('Y') }} Institute of Chartered Economists of Nigeria. All rights reserved.</p>
