@@ -15,7 +15,7 @@
             <input type="radio" wire:model.live="paymentMethod" value="bank_transfer" class="mt-1 text-brand-600 focus:ring-brand-500">
             <span>
                 <span class="block text-sm font-medium text-slate-900 dark:text-white">Bank transfer</span>
-                <span class="block text-xs text-slate-500 dark:text-slate-400">Transfer manually and upload proof of payment</span>
+                <span class="block text-xs text-slate-500 dark:text-slate-400">Diaspora Payments (Transfer to Bank Account and upload proof of payment)</span>
             </span>
         </label>
     </div>
