@@ -18,7 +18,7 @@ class MembershipPaymentNotification extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     /**
-     * @param  'registration'|'renewal'  $context
+     * @param  'registration'|'renewal'|'level_change'  $context
      */
     public function __construct(
         public UserMembership $membership,
@@ -28,9 +28,11 @@ class MembershipPaymentNotification extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        $subject = $this->context === 'renewal'
-            ? "Membership renewal received — {$this->membership->fullName()}"
-            : "New membership payment received — {$this->membership->fullName()}";
+        $subject = match ($this->context) {
+            'renewal' => "Membership renewal received — {$this->membership->fullName()}",
+            'level_change' => "Membership level change payment received — {$this->membership->fullName()}",
+            default => "New membership payment received — {$this->membership->fullName()}",
+        };
 
         return new Envelope(subject: $subject);
     }

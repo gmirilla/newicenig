@@ -50,6 +50,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Payment::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(MemberDocument::class);
+    }
+
     /**
      * Where to send this user after login/registration/etc. Staff accounts with no
      * membership of their own skip the (otherwise empty) member portal and go

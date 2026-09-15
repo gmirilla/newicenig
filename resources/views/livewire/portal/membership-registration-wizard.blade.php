@@ -109,7 +109,7 @@
 
                 <div class="sm:col-span-3">
                     <x-input-label for="passport_photo" value="Passport photograph" />
-                    <input id="passport_photo" type="file" wire:model="passport_photo" accept="image/*" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-400">
+                    <x-file-input id="passport_photo" wire:model="passport_photo" accept="image/*" />
                     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">A recent passport-style photo, used on your membership certificate.</p>
                     <p wire:loading wire:target="passport_photo" class="mt-2 flex items-center gap-2 text-xs font-medium text-brand-600 dark:text-brand-400">
                         <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
@@ -175,6 +175,25 @@
                     <x-input-label for="next_of_kin_address" value="Next of kin — address" />
                     <x-text-input id="next_of_kin_address" class="mt-1 block w-full" wire:model="next_of_kin_address" />
                 </div>
+
+                <div>
+                    <x-input-label for="country_of_residence" value="Country of residence" />
+                    <select id="country_of_residence" wire:model.live="country_of_residence" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                        @foreach (config('countries.list') as $country)
+                            <option value="{{ $country }}">{{ $country }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('country_of_residence')" class="mt-2" />
+                </div>
+
+                @if ($country_of_residence !== 'Nigeria')
+                    <div class="flex items-end">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" wire:model="is_permanent_resident" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">I am a permanent resident of {{ $country_of_residence }}</span>
+                        </label>
+                    </div>
+                @endif
             </div>
 
             <div class="mt-8 flex justify-between">
@@ -196,7 +215,7 @@
                         <x-text-input placeholder="School name" class="block w-full" wire:model="primary_school" />
                         <x-text-input placeholder="Year passed out" class="block w-full" wire:model="primary_school_year" />
                         <div>
-                            <input type="file" wire:model="primary_school_certificate_file" accept=".pdf,image/*" class="block w-full text-sm text-slate-600 dark:text-slate-400">
+                            <x-file-input wire:model="primary_school_certificate_file" accept=".pdf,image/*" />
                             <x-input-error :messages="$errors->get('primary_school_certificate_file')" class="mt-1" />
                         </div>
                     </div>
@@ -208,7 +227,7 @@
                         <x-text-input placeholder="School name" class="block w-full" wire:model="secondary_school" />
                         <x-text-input placeholder="Year passed out" class="block w-full" wire:model="secondary_school_year" />
                         <div>
-                            <input type="file" wire:model="secondary_school_certificate_file" accept=".pdf,image/*" class="block w-full text-sm text-slate-600 dark:text-slate-400">
+                            <x-file-input wire:model="secondary_school_certificate_file" accept=".pdf,image/*" />
                             <x-input-error :messages="$errors->get('secondary_school_certificate_file')" class="mt-1" />
                         </div>
                     </div>
@@ -233,7 +252,7 @@
                         <x-text-input placeholder="Second degree (if any)" class="block w-full sm:col-span-2" wire:model="higher_institution_second_degree" />
                         <div class="sm:col-span-2">
                             <x-input-label value="Certificate" />
-                            <input type="file" wire:model="higher_institution_certificate_file" accept=".pdf,image/*" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-400">
+                            <x-file-input wire:model="higher_institution_certificate_file" accept=".pdf,image/*" />
                             <x-input-error :messages="$errors->get('higher_institution_certificate_file')" class="mt-1" />
                         </div>
                     </div>
@@ -384,6 +403,10 @@
                     <dt class="text-slate-500 dark:text-slate-400">Higher institution</dt>
                     <dd class="font-medium text-slate-900 dark:text-white">{{ $higher_institution }}</dd>
                 </div>
+                <div class="flex justify-between py-3">
+                    <dt class="text-slate-500 dark:text-slate-400">Country of residence</dt>
+                    <dd class="font-medium text-slate-900 dark:text-white">{{ $country_of_residence }}</dd>
+                </div>
                 <div class="flex justify-between py-3 text-base">
                     <dt class="font-semibold text-slate-900 dark:text-white">Amount due</dt>
                     <dd class="font-semibold text-slate-900 dark:text-white">
@@ -392,11 +415,17 @@
                 </div>
             </dl>
 
+            <x-payment-method-fields
+                :payment-method="$paymentMethod"
+                :bank-account-id="$bankAccountId"
+                :bank-accounts="$this->bankAccounts"
+            />
+
             <div class="mt-8 flex justify-between">
                 <x-button wire:click="$set('step', 6)" variant="secondary">Back</x-button>
-                <x-button wire:click="submitAndPay" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="submitAndPay">Pay & submit application</span>
-                    <span wire:loading wire:target="submitAndPay">Redirecting to Paystack…</span>
+                <x-button wire:click="submitAndPay" wire:loading.attr="disabled" wire:target="submitAndPay,proofOfPayment">
+                    <span wire:loading.remove wire:target="submitAndPay">{{ $paymentMethod === 'bank_transfer' ? 'Submit application' : 'Pay & submit application' }}</span>
+                    <span wire:loading wire:target="submitAndPay">{{ $paymentMethod === 'bank_transfer' ? 'Submitting…' : 'Redirecting to Paystack…' }}</span>
                 </x-button>
             </div>
         </x-card>

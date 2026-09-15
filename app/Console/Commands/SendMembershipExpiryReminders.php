@@ -5,20 +5,23 @@ namespace App\Console\Commands;
 use App\Enums\MembershipStatus;
 use App\Models\UserMembership;
 use App\Notifications\MembershipExpiringReminder;
+use App\Settings\GeneralSettings;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 #[Signature('app:send-membership-expiry-reminders')]
-#[Description('Email members whose membership expires in 30 or 7 days')]
+#[Description('Email and notify members whose membership is about to expire')]
 class SendMembershipExpiryReminders extends Command
 {
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(GeneralSettings $settings): void
     {
-        foreach ([30, 7] as $daysRemaining) {
+        $reminderDays = array_map('intval', $settings->membership_expiry_reminder_days ?: [30, 7]);
+
+        foreach ($reminderDays as $daysRemaining) {
             $memberships = UserMembership::query()
                 ->where('status', MembershipStatus::Active)
                 ->whereNotNull('user_id')

@@ -3,18 +3,16 @@
 namespace App\Livewire\Portal;
 
 use App\Enums\MembershipStatus;
+use App\Livewire\Portal\Concerns\HandlesPaymentMethod;
 use App\Models\MemberFile;
 use App\Models\MembershipTier;
-use App\Models\Payment;
-use App\Models\PaymentGateway;
 use App\Models\UserMembership;
-use App\Services\Paystack\PaystackClient;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 class MembershipRegistrationWizard extends Component
 {
-    use WithFileUploads;
+    use HandlesPaymentMethod, WithFileUploads;
 
     public int $step = 1;
 
@@ -57,6 +55,10 @@ class MembershipRegistrationWizard extends Component
     public string $next_of_kin_name = '';
 
     public string $next_of_kin_address = '';
+
+    public string $country_of_residence = 'Nigeria';
+
+    public bool $is_permanent_resident = false;
 
     // Step 4 — Educational qualifications
     public string $primary_school = '';
@@ -160,6 +162,8 @@ class MembershipRegistrationWizard extends Component
             'postal_address' => ['nullable', 'string', 'max:2000'],
             'next_of_kin_name' => ['nullable', 'string', 'max:255'],
             'next_of_kin_address' => ['nullable', 'string', 'max:2000'],
+            'country_of_residence' => ['required', 'string', 'in:'.implode(',', config('countries.list'))],
+            'is_permanent_resident' => ['boolean'],
         ]);
 
         $this->step = 4;
@@ -240,6 +244,8 @@ class MembershipRegistrationWizard extends Component
             'postal_address' => $this->postal_address ?: null,
             'next_of_kin_name' => $this->next_of_kin_name ?: null,
             'next_of_kin_address' => $this->next_of_kin_address ?: null,
+            'country_of_residence' => $this->country_of_residence,
+            'is_permanent_resident' => $this->country_of_residence !== 'Nigeria' && $this->is_permanent_resident,
             'primary_school' => $this->primary_school ?: null,
             'primary_school_year' => $this->primary_school_year ?: null,
             'secondary_school' => $this->secondary_school ?: null,
@@ -267,31 +273,9 @@ class MembershipRegistrationWizard extends Component
         $this->storeUpload($membership, $this->secondary_school_certificate_file, 'secondary_school_certificate');
         $this->storeUpload($membership, $this->higher_institution_certificate_file, 'higher_institution_certificate');
 
-        $gateway = PaymentGateway::firstOrCreate(
-            ['slug' => 'paystack'],
-            ['name' => 'Paystack', 'is_active' => true],
-        );
+        $payment = $this->createPayment($membership, $tier->registration_fee, $tier->currency);
 
-        $payment = Payment::create([
-            'payment_gateway_id' => $gateway->id,
-            'payable_id' => $membership->id,
-            'payable_type' => UserMembership::class,
-            'amount' => $tier->registration_fee,
-            'currency' => $tier->currency,
-            'reference' => Payment::generateReference(),
-        ]);
-
-        $paystack = app(PaystackClient::class);
-
-        $response = $paystack->initializeTransaction(
-            email: $this->email,
-            amountInKobo: (int) round($tier->registration_fee * 100),
-            reference: $payment->reference,
-            callbackUrl: route('payments.callback'),
-            metadata: ['user_membership_id' => $membership->id],
-        );
-
-        return $this->redirect($response['data']['authorization_url'], navigate: false);
+        return $this->redirectForPayment($payment, $this->email, ['user_membership_id' => $membership->id]);
     }
 
     protected function storeUpload(UserMembership $membership, $upload, string $type): void

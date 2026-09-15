@@ -21,6 +21,8 @@ new class extends Component
 
     $links = [
         ['label' => 'Dashboard', 'route' => 'member.dashboard', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+        ['label' => 'Notice Board', 'route' => 'member.notices', 'icon' => 'M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z'],
+        ['label' => 'My Documents', 'route' => 'member.documents', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
         ['label' => 'Renew Membership', 'route' => 'member.renew', 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
         ['label' => 'Profile', 'route' => 'member.profile', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
     ];
@@ -33,11 +35,14 @@ new class extends Component
             <img src="{{ asset('images/icen-mark.jpg') }}" alt="ICEN" class="h-8 w-8 rounded-full object-cover">
             <span class="font-bold text-slate-900 dark:text-white">ICEN</span>
         </a>
-        <button @click="mobileOpen = ! mobileOpen" class="rounded-md p-2 text-slate-500 dark:text-slate-400" aria-label="Toggle menu">
-            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        </button>
+        <div class="flex items-center gap-1">
+            <livewire:layout.notification-bell />
+            <button @click="mobileOpen = ! mobileOpen" class="rounded-md p-2 text-slate-500 dark:text-slate-400" aria-label="Toggle menu">
+                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Sidebar -->
@@ -46,11 +51,12 @@ new class extends Component
         :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
         class="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0 dark:border-white/10 dark:bg-slate-900"
     >
-        <div class="hidden items-center gap-2 border-b border-slate-200 px-6 py-5 lg:flex dark:border-white/10">
+        <div class="hidden items-center justify-between gap-2 border-b border-slate-200 px-6 py-5 lg:flex dark:border-white/10">
             <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
                 <img src="{{ asset('images/icen-mark.jpg') }}" alt="ICEN" class="h-9 w-9 rounded-full object-cover">
                 <span class="text-lg font-bold text-slate-900 dark:text-white">ICEN</span>
             </a>
+            <livewire:layout.notification-bell />
         </div>
 
         <nav class="flex-1 space-y-1 px-3 py-6">

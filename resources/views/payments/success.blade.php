@@ -6,7 +6,9 @@
             </svg>
         </div>
 
-        <h1 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">Payment received</h1>
+        <h1 class="mt-6 text-2xl font-bold text-slate-900 dark:text-white">
+            {{ $payment->status->value === 'pending_verification' ? 'Application submitted' : 'Payment received' }}
+        </h1>
         <p class="mt-3 text-slate-600 dark:text-slate-400">
             @if ($payment->status->value === 'successful')
                 Thank you — your payment of {{ $payment->currency }} {{ number_format($payment->amount, 2) }} was successful.
@@ -15,6 +17,9 @@
                 @else
                     You can now view the details from your member dashboard.
                 @endif
+            @elseif ($payment->status->value === 'pending_verification')
+                We've received your bank transfer details and proof of payment (reference {{ $payment->reference }}).
+                Our team will verify it shortly — you'll receive an email once it's confirmed.
             @else
                 We're still confirming your payment with Paystack. This can take a few moments — refresh this page shortly,
                 or check your email for confirmation.

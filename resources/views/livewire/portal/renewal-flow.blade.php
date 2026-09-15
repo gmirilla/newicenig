@@ -25,9 +25,15 @@
                 </div>
             </dl>
 
-            <x-button wire:click="renew" wire:loading.attr="disabled" class="mt-8 w-full justify-center">
-                <span wire:loading.remove wire:target="renew">Pay & renew</span>
-                <span wire:loading wire:target="renew">Redirecting to Paystack…</span>
+            <x-payment-method-fields
+                :payment-method="$paymentMethod"
+                :bank-account-id="$bankAccountId"
+                :bank-accounts="$this->bankAccounts"
+            />
+
+            <x-button wire:click="renew" wire:loading.attr="disabled" wire:target="renew,proofOfPayment" class="mt-8 w-full justify-center">
+                <span wire:loading.remove wire:target="renew">{{ $paymentMethod === 'bank_transfer' ? 'Submit renewal' : 'Pay & renew' }}</span>
+                <span wire:loading wire:target="renew">{{ $paymentMethod === 'bank_transfer' ? 'Submitting…' : 'Redirecting to Paystack…' }}</span>
             </x-button>
         </x-card>
     @endif

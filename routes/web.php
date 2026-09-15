@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PaymentProofController;
 use App\Http\Controllers\Auth\SetPasswordController;
 use App\Http\Controllers\Marketing\ContactController;
 use App\Http\Controllers\Marketing\DownloadController;
@@ -38,6 +39,10 @@ Route::view('join/{tier}', 'marketing.join')->name('join.tier');
 Route::get('set-password/{user}', [SetPasswordController::class, 'create'])
     ->middleware('signed')
     ->name('password.set');
+
+Route::get('admin/payments/{payment}/proof', [PaymentProofController::class, 'show'])
+    ->middleware('auth')
+    ->name('payments.proof');
 
 require __DIR__.'/payments.php';
 require __DIR__.'/portal.php';

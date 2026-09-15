@@ -5,7 +5,17 @@
         </h2>
     </x-slot>
 
-    @php $membership = auth()->user()->currentMembership(); @endphp
+    @php
+        $membership = auth()->user()->currentMembership();
+        $latestNotices = \App\Models\Notice::visible()
+            ->with('membershipTiers')
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('published_at')
+            ->get()
+            ->filter(fn ($notice) => $notice->isVisibleToTier($membership?->membership_tier_id))
+            ->take(3);
+        $latestDocuments = auth()->user()->documents()->latest()->take(3)->get();
+    @endphp
 
     <div class="space-y-8">
         <x-card>
@@ -22,6 +32,51 @@
                 @endif
             </div>
         </x-card>
+
+        @if ($latestNotices->isNotEmpty())
+            <x-card>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Notice board</h3>
+                    <a href="{{ route('member.notices') }}" wire:navigate class="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">View all</a>
+                </div>
+                <div class="mt-4 divide-y divide-slate-200 dark:divide-white/10">
+                    @foreach ($latestNotices as $notice)
+                        <div class="py-3">
+                            <div class="flex items-center gap-2">
+                                @if ($notice->is_pinned)
+                                    <x-badge variant="brand">Pinned</x-badge>
+                                @endif
+                                <p class="font-medium text-slate-900 dark:text-white">{{ $notice->title }}</p>
+                            </div>
+                            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ $notice->published_at?->format('M j, Y') }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </x-card>
+        @endif
+
+        @if ($latestDocuments->isNotEmpty())
+            <x-card>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white">My documents</h3>
+                    <a href="{{ route('member.documents') }}" wire:navigate class="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">View all</a>
+                </div>
+                <div class="mt-4 divide-y divide-slate-200 dark:divide-white/10">
+                    @foreach ($latestDocuments as $document)
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <x-badge variant="brand">{{ ucfirst($document->type) }}</x-badge>
+                                    <p class="font-medium text-slate-900 dark:text-white">{{ $document->title }}</p>
+                                </div>
+                                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Added {{ $document->created_at->format('M j, Y') }}</p>
+                            </div>
+                            <a href="{{ route('member.documents.download', $document) }}" target="_blank" class="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">Download</a>
+                        </div>
+                    @endforeach
+                </div>
+            </x-card>
+        @endif
 
         <div class="grid gap-6 sm:grid-cols-3">
             <x-card>
@@ -43,6 +98,16 @@
                         <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Download your ICEN membership certificate as a PDF.</p>
                     </div>
                     <x-button href="{{ route('member.certificate') }}" target="_blank">Download certificate</x-button>
+                </div>
+            </x-card>
+
+            <x-card>
+                <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Change your membership level</h3>
+                        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Apply to upgrade to a higher membership tier.</p>
+                    </div>
+                    <x-button href="{{ route('member.change-level') }}">Change level</x-button>
                 </div>
             </x-card>
         @elseif ($membership && $membership->status->value === 'expired')

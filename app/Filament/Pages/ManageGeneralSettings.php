@@ -73,6 +73,15 @@ class ManageGeneralSettings extends Page implements HasForms
                             ->splitKeys([',', ' ', 'Tab'])
                             ->columnSpanFull(),
                     ]),
+                Section::make('Renewal reminders')
+                    ->description('Members are emailed (and notified in-app) a reminder this many days before their membership expires. Add a number and press Enter for each reminder you want sent.')
+                    ->components([
+                        TagsInput::make('membership_expiry_reminder_days')
+                            ->label('Reminder lead times (days before expiry)')
+                            ->placeholder('Add a number of days and press Enter')
+                            ->splitKeys([',', ' ', 'Tab'])
+                            ->columnSpanFull(),
+                    ]),
             ])
             ->statePath('data');
     }

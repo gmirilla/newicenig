@@ -9,6 +9,7 @@ enum MembershipStatus: string
     case Active = 'active';
     case Expired = 'expired';
     case Revoked = 'revoked';
+    case Superseded = 'superseded';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum MembershipStatus: string
             self::Active => 'Active',
             self::Expired => 'Expired',
             self::Revoked => 'Revoked',
+            self::Superseded => 'Superseded',
         };
     }
 
@@ -26,7 +28,7 @@ enum MembershipStatus: string
         return match ($this) {
             self::PendingPayment, self::PendingReview => 'warning',
             self::Active => 'success',
-            self::Expired => 'gray',
+            self::Expired, self::Superseded => 'gray',
             self::Revoked => 'danger',
         };
     }

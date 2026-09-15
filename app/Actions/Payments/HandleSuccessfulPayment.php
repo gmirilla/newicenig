@@ -38,7 +38,7 @@ class HandleSuccessfulPayment
 
         if ($payable instanceof UserMembership) {
             $this->handleMembershipPayment($payable);
-            $this->notifyApprovedMailingList($payable, $payment, 'registration');
+            $this->notifyApprovedMailingList($payable, $payment, $payable->previous_membership_id ? 'level_change' : 'registration');
         } elseif ($payable instanceof MembershipRenewal) {
             $this->handleRenewalPayment($payable);
             $this->notifyApprovedMailingList($payable->userMembership, $payment, 'renewal');

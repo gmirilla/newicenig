@@ -1,8 +1,10 @@
 <x-mail::message>
-# {{ $context === 'renewal' ? 'Membership renewal received' : 'New membership payment received' }}
+# {{ match ($context) { 'renewal' => 'Membership renewal received', 'level_change' => 'Membership level change payment received', default => 'New membership payment received' } }}
 
 @if ($context === 'renewal')
 **{{ $membership->fullName() }}** has renewed their **{{ $membership->membershipTier->name }}** membership.
+@elseif ($context === 'level_change')
+**{{ $membership->fullName() }}** has applied to change to the **{{ $membership->membershipTier->name }}** tier{{ $membership->previousMembership ? " (from {$membership->previousMembership->membershipTier->name})" : '' }} and paid the fee.
 @else
 **{{ $membership->fullName() }}** has submitted a new **{{ $membership->membershipTier->name }}** membership application and paid the registration fee.
 @endif

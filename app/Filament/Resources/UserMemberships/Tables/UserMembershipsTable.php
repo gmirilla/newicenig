@@ -28,6 +28,7 @@ class UserMembershipsTable
                 TextColumn::make('first_name')->formatStateUsing(fn ($record) => $record->fullName())->label('Applicant')->searchable(['first_name', 'last_name']),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('membershipTier.name')->label('Tier'),
+                TextColumn::make('previousMembership.membershipTier.name')->label('Upgrading from')->placeholder('—'),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (MembershipStatus $state) => $state->label())
@@ -56,6 +57,10 @@ class UserMembershipsTable
                             'verified_by' => auth()->id(),
                             'expires_at' => now()->addYear(),
                         ]);
+
+                        if ($record->previousMembership) {
+                            $record->previousMembership->update(['status' => MembershipStatus::Superseded]);
+                        }
 
                         if ($record->user) {
                             $record->user->notify(new MembershipApproved($record));

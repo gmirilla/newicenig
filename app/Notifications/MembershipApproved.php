@@ -21,10 +21,14 @@ class MembershipApproved extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $isLevelChange = $this->membership->previous_membership_id !== null;
+
         return (new MailMessage)
-            ->subject('Your ICEN membership has been approved')
+            ->subject($isLevelChange ? 'Your ICEN membership level change has been approved' : 'Your ICEN membership has been approved')
             ->greeting("Congratulations, {$notifiable->name}!")
-            ->line("Your {$this->membership->membershipTier->name} membership application has been approved.")
+            ->line($isLevelChange
+                ? "Your application to change your membership to the {$this->membership->membershipTier->name} tier has been approved."
+                : "Your {$this->membership->membershipTier->name} membership application has been approved.")
             ->line("Your membership number is: {$this->membership->membership_number}")
             ->action('View your dashboard', route('member.dashboard'))
             ->line('Thank you for being part of ICEN.');

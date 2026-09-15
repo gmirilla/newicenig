@@ -28,6 +28,15 @@ class GeneralSettings extends Settings
      */
     public array $payment_notification_recipients;
 
+    /**
+     * How many days before a membership's expiry to send a renewal reminder.
+     * One reminder is sent per value, e.g. [30, 7] sends a reminder 30 days
+     * out and again 7 days out.
+     *
+     * @var array<int, int>
+     */
+    public array $membership_expiry_reminder_days;
+
     public static function group(): string
     {
         return 'general';
