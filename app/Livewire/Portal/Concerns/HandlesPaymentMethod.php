@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal\Concerns;
 
+use App\Actions\Payments\HandleBankTransferSubmission;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\BankAccount;
@@ -72,6 +73,8 @@ trait HandlesPaymentMethod
             $payment->addMedia($this->proofOfPayment->getRealPath())
                 ->usingFileName($this->proofOfPayment->getClientOriginalName())
                 ->toMediaCollection('proof_of_payment');
+
+            app(HandleBankTransferSubmission::class)->handle($payment);
         }
 
         return $payment;
