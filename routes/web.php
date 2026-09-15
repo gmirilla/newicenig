@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
+Route::get('membership', [PageController::class, 'membership'])->name('membership');
+
 Route::middleware('auth')->group(function () {
     Route::controller(PageController::class)->group(function () {
         Route::get('about', 'about')->name('about');
         Route::get('leadership', 'leadership')->name('leadership');
-        Route::get('membership', 'membership')->name('membership');
     });
 
     Route::controller(PostController::class)->group(function () {
