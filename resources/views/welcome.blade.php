@@ -22,7 +22,7 @@
 
                 <div class="mt-10 flex items-center justify-center gap-4">
                     <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="accent" size="lg">Become a member</x-button>
-                    <x-button href="{{ Route::has('about') ? route('about') : '#' }}" variant="secondary" size="lg" class="!bg-white/10 !text-white !ring-white/30 hover:!bg-white/20">Learn more</x-button>
+                    <x-button href="https://new.icennig.org.ng/" variant="secondary" size="lg" class="!bg-white/10 !text-white !ring-white/30 hover:!bg-white/20">Learn more</x-button>
                 </div>
             </div>
         </div>
