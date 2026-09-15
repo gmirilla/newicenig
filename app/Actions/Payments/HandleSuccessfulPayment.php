@@ -38,6 +38,14 @@ class HandleSuccessfulPayment
 
         if ($payable instanceof UserMembership) {
             $this->handleMembershipPayment($payable);
+
+            // A brand-new applicant has no account yet when the payment row is
+            // created (it's a guest submission), so the payment can't be linked
+            // to a user until handleMembershipPayment() resolves/creates one above.
+            if (! $payment->user_id && $payable->user_id) {
+                $payment->update(['user_id' => $payable->user_id]);
+            }
+
             $this->notifyApprovedMailingList($payable, $payment, $payable->previous_membership_id ? 'level_change' : 'registration');
         } elseif ($payable instanceof MembershipRenewal) {
             $this->handleRenewalPayment($payable);
