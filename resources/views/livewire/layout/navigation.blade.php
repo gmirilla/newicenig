@@ -79,6 +79,7 @@ new class extends Component
             @endforeach
 
             @if ($membership?->isActive())
+            <!-- disable rendering oof automated certificate download for now in case client need it implemented later
                 <a
                     href="{{ route('member.certificate') }}"
                     target="_blank"
@@ -89,6 +90,7 @@ new class extends Component
                     </svg>
                     Certificate
                 </a>
+            -->
             @endif
 
             @if (auth()->user()->hasAnyRole(\App\Models\User::PANEL_ROLES))
