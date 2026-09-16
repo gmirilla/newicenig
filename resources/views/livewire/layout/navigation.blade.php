@@ -32,7 +32,7 @@ new class extends Component
     <!-- Mobile top bar -->
     <div class="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden dark:border-white/10 dark:bg-slate-900">
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
-            <x-app-logo class="h-8 w-8" />
+            <x-app-logo class="h-8" />
             <span class="font-bold text-slate-900 dark:text-white">ICEN</span>
         </a>
         <div class="flex items-center gap-1">
@@ -53,7 +53,7 @@ new class extends Component
     >
         <div class="hidden items-center justify-between gap-2 border-b border-slate-200 px-6 py-5 lg:flex dark:border-white/10">
             <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
-                <x-app-logo class="h-9 w-9" />
+                <x-app-logo class="h-9" />
                 <span class="text-lg font-bold text-slate-900 dark:text-white">ICEN</span>
             </a>
             <livewire:layout.notification-bell />
