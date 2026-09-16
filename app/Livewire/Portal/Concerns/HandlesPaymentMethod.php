@@ -127,6 +127,11 @@ trait HandlesPaymentMethod
 
         $isBankTransfer = $this->paymentMethod === 'bank_transfer';
 
+        // Paystack only ever processes NGN on this account — never let a
+        // mis-configured tier (or a future currency added to the base
+        // currency field) route a non-NGN amount through it.
+        abort_if(! $isBankTransfer && $currency !== 'NGN', 422, 'Paystack payments must be in NGN.');
+
         $gateway = PaymentGateway::firstOrCreate(
             ['slug' => $isBankTransfer ? 'bank_transfer' : 'paystack'],
             ['name' => $isBankTransfer ? 'Bank Transfer' : 'Paystack', 'is_active' => true],
@@ -168,6 +173,8 @@ trait HandlesPaymentMethod
         if ($payment->payment_method === PaymentMethod::BankTransfer) {
             return $this->redirect(route('payments.success', ['payment' => $payment->id]), navigate: false);
         }
+
+        abort_if($payment->currency !== 'NGN', 422, 'Paystack payments must be in NGN.');
 
         $paystack = app(PaystackClient::class);
 

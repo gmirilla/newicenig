@@ -27,9 +27,10 @@ class MembershipTierForm
                         TextInput::make('abbreviation')->maxLength(50),
                         TextInput::make('slug')->required()->unique(ignoreRecord: true)->maxLength(255),
                         Select::make('currency')
-                            ->options(['NGN' => 'NGN', 'USD' => 'USD'])
+                            ->options(['NGN' => 'NGN'])
                             ->default('NGN')
-                            ->required(),
+                            ->required()
+                            ->helperText('Paystack only processes NGN for this account. Prices in other currencies (e.g. for diaspora bank transfers) are set below.'),
                         TextInput::make('registration_fee')->numeric()->prefix('₦')->required(),
                         TextInput::make('renewal_fee')->numeric()->prefix('₦')->required(),
                         TextInput::make('min_years_experience')->numeric(),
