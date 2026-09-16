@@ -3,7 +3,7 @@
         <div class="grid gap-10 lg:grid-cols-4">
             <div class="lg:col-span-2">
                 <div class="flex items-center gap-2">
-                    <x-app-logo class="h-10 w-10 ring-2 ring-accent-400/30" />
+                    <x-app-logo class="h-10" />
                     <span class="text-lg font-bold text-white">ICEN</span>
                 </div>
                 <p class="mt-4 max-w-sm text-sm text-accent-100/80">

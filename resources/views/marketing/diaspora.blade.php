@@ -33,7 +33,7 @@
     </section>
 
     <section class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Membership fees</h3>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Membership Application Fees</h3>
 
         @if ($tiers->isEmpty())
             <x-card class="mt-4">
@@ -47,7 +47,7 @@
                     <x-card>
                         <h4 class="text-lg font-semibold text-slate-900 dark:text-white">{{ $tier->name }}</h4>
                         @if ($tier->abbreviation)
-                            <p class="text-sm text-brand-600 dark:text-brand-400">{{ $tier->abbreviation }}</p>
+                            <p class="text-sm text-brand-600 dark:text-brand-400"><b>{{ $tier->abbreviation }}</p>
                         @endif
                         <dl class="mt-4 space-y-2 text-sm">
                             @foreach ($tier->currenciesWithRegistrationFee() as $currency)
