@@ -14,11 +14,11 @@
             <ol class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
                 <li class="flex gap-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">1</span>
-                    <span>Transfer your membership fee to one of the official ICEN Diaspora bank accounts listed below.</span>
+                    <span>Transfer your membership application fee to one of the official ICEN Diaspora bank accounts listed below.</span>
                 </li>
                 <li class="flex gap-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">2</span>
-                    <span>Start your application, select your country of residence, and choose <strong>Bank transfer</strong> as your payment method.</span>
+                    <span>Start your application, select your country of residence, and choose <strong>Bank transfer</strong> as your payment method and select the Bank account paid to.</span>
                 </li>
                 <li class="flex gap-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">3</span>
