@@ -28,6 +28,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('ICEN')
+            ->brandLogo(asset('images/icen-mark.jpg'))
+            ->favicon(asset('images/icen-mark.jpg'))
             ->colors([
                 'primary' => [
                     50 => '240, 253, 244',

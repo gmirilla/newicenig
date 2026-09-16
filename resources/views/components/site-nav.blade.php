@@ -11,7 +11,7 @@
 <header x-data="{ open: false }" class="sticky top-0 z-40 border-b border-accent-100 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-slate-900/90">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
-            <img src="{{ asset('images/icen-mark.jpg') }}" alt="ICEN" class="h-10 w-10 rounded-full object-cover">
+            <x-app-logo class="h-10 w-10" />
             <span class="text-lg font-bold tracking-tight text-accent-800 dark:text-accent-300">ICEN</span>
         </a>
 
