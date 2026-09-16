@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\MemberDocument;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MemberDocumentController extends Controller
 {
-    public function show(Request $request, MemberDocument $document): Response
+    public function show(Request $request, MemberDocument $document): BinaryFileResponse
     {
         $user = $request->user();
 

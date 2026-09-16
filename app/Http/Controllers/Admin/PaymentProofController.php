@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaymentProofController extends Controller
 {
-    public function show(Request $request, Payment $payment): Response
+    public function show(Request $request, Payment $payment): BinaryFileResponse
     {
         abort_unless($request->user()?->hasAnyRole(User::PANEL_ROLES), 403);
 
