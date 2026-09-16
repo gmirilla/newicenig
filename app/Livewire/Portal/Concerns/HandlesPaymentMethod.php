@@ -6,6 +6,7 @@ use App\Actions\Payments\HandleBankTransferSubmission;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\BankAccount;
+use App\Models\MembershipTier;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Services\Paystack\PaystackClient;
@@ -16,6 +17,11 @@ use Illuminate\Support\Facades\Auth;
  * Shared by every Livewire flow that collects a payment (registration wizard,
  * renewal, change-level application) so the Paystack vs. bank-transfer choice
  * — and the bank-transfer proof-of-payment upload — is implemented once.
+ *
+ * Using components must implement `paymentTier()` (the tier whose fee is
+ * being charged) and `paymentFeeType()` ('registration' or 'renewal'), so
+ * this trait can resolve the correct amount for whichever currency the
+ * member ends up paying in.
  */
 trait HandlesPaymentMethod
 {
@@ -25,9 +31,74 @@ trait HandlesPaymentMethod
 
     public $proofOfPayment = null;
 
+    abstract protected function paymentTier(): ?MembershipTier;
+
+    abstract protected function paymentFeeType(): string;
+
+    /**
+     * Only bank accounts whose currency this tier actually has a fee
+     * configured for — so a member can never select an account with no
+     * valid price behind it.
+     */
     public function getBankAccountsProperty()
     {
-        return BankAccount::where('is_active', true)->orderBy('sort_order')->get();
+        $tier = $this->paymentTier();
+
+        if (! $tier) {
+            return collect();
+        }
+
+        return BankAccount::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->filter(fn (BankAccount $account) => $this->feeForCurrency($tier, $account->currency) !== null)
+            ->values();
+    }
+
+    /**
+     * The amount actually due right now, reactive to the chosen payment
+     * method and (for bank transfer) the selected account's currency.
+     */
+    public function getDisplayAmountProperty(): ?float
+    {
+        $tier = $this->paymentTier();
+
+        if (! $tier) {
+            return null;
+        }
+
+        if ($this->paymentMethod === 'bank_transfer') {
+            $account = $this->bankAccounts->firstWhere('id', (int) $this->bankAccountId);
+
+            return $account ? $this->feeForCurrency($tier, $account->currency) : null;
+        }
+
+        return $this->feeForCurrency($tier, $tier->currency);
+    }
+
+    /**
+     * The currency the display amount above is in.
+     */
+    public function getDisplayCurrencyProperty(): ?string
+    {
+        $tier = $this->paymentTier();
+
+        if (! $tier) {
+            return null;
+        }
+
+        if ($this->paymentMethod === 'bank_transfer') {
+            return $this->bankAccounts->firstWhere('id', (int) $this->bankAccountId)?->currency;
+        }
+
+        return $tier->currency;
+    }
+
+    protected function feeForCurrency(MembershipTier $tier, string $currency): ?float
+    {
+        return $this->paymentFeeType() === 'renewal'
+            ? $tier->renewalFeeFor($currency)
+            : $tier->registrationFeeFor($currency);
     }
 
     protected function validatePaymentMethodFields(): void
@@ -40,14 +111,19 @@ trait HandlesPaymentMethod
     }
 
     /**
-     * Create the Payment record for the chosen method. For bank transfer this
-     * immediately attaches the uploaded proof and marks it pending staff
-     * verification; for Paystack it's left pending until the gateway redirect
-     * completes.
+     * Create the Payment record for the chosen method, at the amount/currency
+     * resolved above. For bank transfer this immediately attaches the
+     * uploaded proof and marks it pending staff verification; for Paystack
+     * it's left pending until the gateway redirect completes.
      */
-    protected function createPayment(Model $payable, float $amount, string $currency): Payment
+    protected function createPayment(Model $payable): Payment
     {
         $this->validatePaymentMethodFields();
+
+        $amount = $this->displayAmount;
+        $currency = $this->displayCurrency;
+
+        abort_unless($amount !== null && $currency !== null, 422, 'No price is configured for the selected payment option.');
 
         $isBankTransfer = $this->paymentMethod === 'bank_transfer';
 

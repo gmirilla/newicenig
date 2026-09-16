@@ -123,6 +123,16 @@ class MembershipRegistrationWizard extends Component
         return $this->membershipTierId ? MembershipTier::find($this->membershipTierId) : null;
     }
 
+    protected function paymentTier(): ?MembershipTier
+    {
+        return $this->selectedTier;
+    }
+
+    protected function paymentFeeType(): string
+    {
+        return 'registration';
+    }
+
     public function selectTier(int $tierId): void
     {
         $this->membershipTierId = $tierId;
@@ -273,7 +283,7 @@ class MembershipRegistrationWizard extends Component
         $this->storeUpload($membership, $this->secondary_school_certificate_file, 'secondary_school_certificate');
         $this->storeUpload($membership, $this->higher_institution_certificate_file, 'higher_institution_certificate');
 
-        $payment = $this->createPayment($membership, $tier->registration_fee, $tier->currency);
+        $payment = $this->createPayment($membership);
 
         return $this->redirectForPayment($payment, $this->email, ['user_membership_id' => $membership->id]);
     }

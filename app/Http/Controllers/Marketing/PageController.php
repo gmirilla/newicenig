@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
+use App\Models\MembershipTier;
 use App\Models\Page;
 use App\Models\TeamMember;
 use Illuminate\View\View;
@@ -35,6 +36,11 @@ class PageController extends Controller
     {
         $bankAccounts = BankAccount::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('marketing.diaspora', ['bankAccounts' => $bankAccounts]);
+        $tiers = MembershipTier::where('is_active', true)
+            ->with('prices')
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('marketing.diaspora', ['bankAccounts' => $bankAccounts, 'tiers' => $tiers]);
     }
 }

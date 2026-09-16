@@ -4,6 +4,7 @@ namespace App\Livewire\Portal;
 
 use App\Livewire\Portal\Concerns\HandlesPaymentMethod;
 use App\Models\MembershipRenewal;
+use App\Models\MembershipTier;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -17,6 +18,16 @@ class RenewalFlow extends Component
         return Auth::user()->currentMembership();
     }
 
+    protected function paymentTier(): ?MembershipTier
+    {
+        return $this->membership?->membershipTier;
+    }
+
+    protected function paymentFeeType(): string
+    {
+        return 'renewal';
+    }
+
     public function renew()
     {
         $membership = $this->membership;
@@ -27,7 +38,7 @@ class RenewalFlow extends Component
             'user_membership_id' => $membership->id,
         ]);
 
-        $payment = $this->createPayment($renewal, $membership->membershipTier->renewal_fee, $membership->membershipTier->currency);
+        $payment = $this->createPayment($renewal);
 
         $renewal->update(['payment_id' => $payment->id]);
 

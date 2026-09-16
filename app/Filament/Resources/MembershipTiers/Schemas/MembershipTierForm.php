@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MembershipTiers\Schemas;
 
+use App\Models\BankAccount;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -43,6 +44,23 @@ class MembershipTierForm
                         Repeater::make('benefits')
                             ->simple(TextInput::make('benefit')->required())
                             ->addActionLabel('Add benefit')
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Additional currency prices')
+                    ->description('Fixed prices for members paying via a bank account in another currency (e.g. diaspora applicants). Only currencies with a configured bank account can be selected.')
+                    ->components([
+                        Repeater::make('prices')
+                            ->relationship('prices')
+                            ->schema([
+                                Select::make('currency')
+                                    ->options(fn () => BankAccount::query()->pluck('currency', 'currency'))
+                                    ->required()
+                                    ->distinct(),
+                                TextInput::make('registration_fee')->numeric()->label('Registration fee'),
+                                TextInput::make('renewal_fee')->numeric()->label('Renewal fee'),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Add currency price')
                             ->columnSpanFull(),
                     ]),
             ]);

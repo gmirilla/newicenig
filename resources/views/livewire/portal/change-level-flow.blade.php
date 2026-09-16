@@ -44,7 +44,7 @@
                 <x-card class="mt-6">
                     <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Complete your application</h3>
                     <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                        Upgrading to <strong>{{ $this->selectedTier->name }}</strong> — {{ $this->selectedTier->currency }} {{ number_format($this->selectedTier->registration_fee, 2) }}
+                        Upgrading to <strong>{{ $this->selectedTier->name }}</strong> — {{ $this->displayCurrency }} {{ number_format($this->displayAmount ?? 0, 2) }}
                     </p>
 
                     <x-payment-method-fields

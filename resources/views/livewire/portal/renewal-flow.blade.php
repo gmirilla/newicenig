@@ -20,7 +20,7 @@
                 <div class="flex justify-between py-3 text-base">
                     <dt class="font-semibold text-slate-900 dark:text-white">Renewal fee</dt>
                     <dd class="font-semibold text-slate-900 dark:text-white">
-                        {{ $this->membership->membershipTier->currency }} {{ number_format($this->membership->membershipTier->renewal_fee, 2) }}
+                        {{ $this->displayCurrency }} {{ number_format($this->displayAmount ?? 0, 2) }}
                     </dd>
                 </div>
             </dl>

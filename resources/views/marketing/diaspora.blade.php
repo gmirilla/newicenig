@@ -33,6 +33,37 @@
     </section>
 
     <section class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Membership fees</h3>
+
+        @if ($tiers->isEmpty())
+            <x-card class="mt-4">
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Membership tiers are being updated. Please <a href="{{ route('contact') }}" class="font-medium text-brand-600 hover:underline dark:text-brand-400">contact us</a> to enquire about fees.
+                </p>
+            </x-card>
+        @else
+            <div class="mt-4 grid gap-6 sm:grid-cols-2">
+                @foreach ($tiers as $tier)
+                    <x-card>
+                        <h4 class="text-lg font-semibold text-slate-900 dark:text-white">{{ $tier->name }}</h4>
+                        @if ($tier->abbreviation)
+                            <p class="text-sm text-brand-600 dark:text-brand-400">{{ $tier->abbreviation }}</p>
+                        @endif
+                        <dl class="mt-4 space-y-2 text-sm">
+                            @foreach ($tier->currenciesWithRegistrationFee() as $currency)
+                                <div class="flex justify-between gap-4">
+                                    <dt class="text-slate-500 dark:text-slate-400">{{ $currency }}</dt>
+                                    <dd class="font-medium text-slate-900 dark:text-white">{{ $currency }} {{ number_format($tier->registrationFeeFor($currency), 2) }}</dd>
+                                </div>
+                            @endforeach
+                        </dl>
+                    </x-card>
+                @endforeach
+            </div>
+        @endif
+    </section>
+
+    <section class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Official ICEN Diaspora accounts</h3>
 
         @if ($bankAccounts->isEmpty())

@@ -48,6 +48,16 @@ class ChangeLevelFlow extends Component
         $this->selectedTierId = $tierId;
     }
 
+    protected function paymentTier(): ?MembershipTier
+    {
+        return $this->selectedTier;
+    }
+
+    protected function paymentFeeType(): string
+    {
+        return 'registration';
+    }
+
     public function submit()
     {
         $membership = $this->membership;
@@ -102,7 +112,7 @@ class ChangeLevelFlow extends Component
             'directory_opt_in' => $membership->directory_opt_in,
         ]);
 
-        $payment = $this->createPayment($application, $tier->registration_fee, $tier->currency);
+        $payment = $this->createPayment($application);
 
         return $this->redirectForPayment($payment, Auth::user()->email, ['user_membership_id' => $application->id, 'level_change' => true]);
     }

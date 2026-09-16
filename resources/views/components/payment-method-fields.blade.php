@@ -3,7 +3,7 @@
 <div class="mt-6 space-y-4">
     <h4 class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Payment method</h4>
 
-    <div class="grid gap-3 sm:grid-cols-2">
+    <div class="grid gap-3 {{ $bankAccounts->isNotEmpty() ? 'sm:grid-cols-2' : '' }}">
         <label class="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 p-4 dark:border-white/10">
             <input type="radio" wire:model.live="paymentMethod" value="paystack" class="mt-1 text-brand-600 focus:ring-brand-500">
             <span>
@@ -11,22 +11,24 @@
                 <span class="block text-xs text-slate-500 dark:text-slate-400">Card, bank, or USSD via Paystack</span>
             </span>
         </label>
-        <label class="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 p-4 dark:border-white/10">
-            <input type="radio" wire:model.live="paymentMethod" value="bank_transfer" class="mt-1 text-brand-600 focus:ring-brand-500">
-            <span>
-                <span class="block text-sm font-medium text-slate-900 dark:text-white">Bank transfer</span>
-                <span class="block text-xs text-slate-500 dark:text-slate-400">Diaspora Payments (Transfer to Bank Account and upload proof of payment)</span>
-            </span>
-        </label>
+        @if ($bankAccounts->isNotEmpty())
+            <label class="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 p-4 dark:border-white/10">
+                <input type="radio" wire:model.live="paymentMethod" value="bank_transfer" class="mt-1 text-brand-600 focus:ring-brand-500">
+                <span>
+                    <span class="block text-sm font-medium text-slate-900 dark:text-white">Bank transfer</span>
+                    <span class="block text-xs text-slate-500 dark:text-slate-400">Diaspora Payments (Transfer to Bank Account and upload proof of payment)</span>
+                </span>
+            </label>
+        @endif
     </div>
 
-    @if ($paymentMethod === 'bank_transfer')
+    @if ($paymentMethod === 'bank_transfer' && $bankAccounts->isNotEmpty())
         <div class="rounded-md bg-slate-50 p-4 dark:bg-white/5">
             <x-input-label for="bankAccountId" value="Pay into" />
             <select id="bankAccountId" wire:model.live="bankAccountId" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
                 <option value="">Select a bank account…</option>
                 @foreach ($bankAccounts as $account)
-                    <option value="{{ $account->id }}">{{ $account->bank_name }} — {{ $account->account_name }} ({{ $account->account_number }})</option>
+                    <option value="{{ $account->id }}">{{ $account->bank_name }} — {{ $account->account_name }} ({{ $account->account_number }}) — {{ $account->currency }}</option>
                 @endforeach
             </select>
             <x-input-error :messages="$errors->get('bankAccountId')" class="mt-2" />
@@ -40,6 +42,8 @@
                     <dd class="text-slate-900 dark:text-white">{{ $selectedAccount->account_name }}</dd>
                     <dt class="text-slate-500 dark:text-slate-400">Account number</dt>
                     <dd class="text-slate-900 dark:text-white">{{ $selectedAccount->account_number }}</dd>
+                    <dt class="text-slate-500 dark:text-slate-400">Currency</dt>
+                    <dd class="text-slate-900 dark:text-white">{{ $selectedAccount->currency }}</dd>
                     @if ($selectedAccount->instructions)
                         <dt class="text-slate-500 dark:text-slate-400">Notes</dt>
                         <dd class="text-slate-900 dark:text-white">{{ $selectedAccount->instructions }}</dd>

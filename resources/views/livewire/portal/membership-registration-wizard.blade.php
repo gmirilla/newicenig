@@ -410,7 +410,7 @@
                 <div class="flex justify-between py-3 text-base">
                     <dt class="font-semibold text-slate-900 dark:text-white">Amount due</dt>
                     <dd class="font-semibold text-slate-900 dark:text-white">
-                        {{ $this->selectedTier?->currency }} {{ number_format($this->selectedTier?->registration_fee ?? 0, 2) }}
+                        {{ $this->displayCurrency }} {{ number_format($this->displayAmount ?? 0, 2) }}
                     </dd>
                 </div>
             </dl>

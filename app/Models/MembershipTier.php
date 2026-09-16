@@ -57,4 +57,55 @@ class MembershipTier extends Model
     {
         return $this->hasMany(UserMembership::class);
     }
+
+    public function prices(): HasMany
+    {
+        return $this->hasMany(MembershipTierPrice::class);
+    }
+
+    /**
+     * The registration fee in the given currency, or null if this tier isn't
+     * priced in it (neither as the base currency nor an additional price).
+     */
+    public function registrationFeeFor(string $currency): ?float
+    {
+        $currency = strtoupper($currency);
+
+        if ($currency === strtoupper($this->currency)) {
+            return (float) $this->registration_fee;
+        }
+
+        $fee = $this->prices->firstWhere('currency', $currency)?->registration_fee;
+
+        return $fee !== null ? (float) $fee : null;
+    }
+
+    /**
+     * The renewal fee in the given currency, or null if this tier isn't
+     * priced in it.
+     */
+    public function renewalFeeFor(string $currency): ?float
+    {
+        $currency = strtoupper($currency);
+
+        if ($currency === strtoupper($this->currency)) {
+            return (float) $this->renewal_fee;
+        }
+
+        $fee = $this->prices->firstWhere('currency', $currency)?->renewal_fee;
+
+        return $fee !== null ? (float) $fee : null;
+    }
+
+    /**
+     * Every currency this tier has a registration fee configured for,
+     * base currency first.
+     */
+    public function currenciesWithRegistrationFee(): \Illuminate\Support\Collection
+    {
+        return collect([$this->currency])
+            ->merge($this->prices->whereNotNull('registration_fee')->pluck('currency'))
+            ->unique()
+            ->values();
+    }
 }
