@@ -34,6 +34,7 @@
                 <x-button href="{{ url('/member/dashboard') }}" variant="secondary" size="sm">Dashboard</x-button>
             @else
                 <x-button href="{{ route('login') }}" variant="ghost" size="sm">Log in</x-button>
+                <x-button href="{{ Route::has('diaspora') ? route('diaspora') : '#' }}" variant="secondary" size="sm">Diaspora</x-button>
                 <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="primary" size="sm">Apply Now</x-button>
             @endauth
         </div>
@@ -60,6 +61,7 @@
                     <x-button href="{{ url('/member/dashboard') }}" variant="secondary" size="sm">Dashboard</x-button>
                 @else
                     <x-button href="{{ route('login') }}" variant="ghost" size="sm">Log in</x-button>
+                    <x-button href="{{ Route::has('diaspora') ? route('diaspora') : '#' }}" variant="primary" size="sm">Diaspora</x-button>
                     <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="primary" size="sm">Apply Now</x-button>
                 @endauth
             </div>

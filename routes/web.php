@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 
 Route::get('membership', [PageController::class, 'membership'])->name('membership');
+Route::get('diaspora', [PageController::class, 'diaspora'])->name('diaspora');
 
 Route::middleware('auth')->group(function () {
     Route::controller(PageController::class)->group(function () {

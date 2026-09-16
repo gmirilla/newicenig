@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankAccount;
 use App\Models\Page;
 use App\Models\TeamMember;
 use Illuminate\View\View;
@@ -28,5 +29,12 @@ class PageController extends Controller
     public function membership(): View
     {
         return view('marketing.membership');
+    }
+
+    public function diaspora(): View
+    {
+        $bankAccounts = BankAccount::where('is_active', true)->orderBy('sort_order')->get();
+
+        return view('marketing.diaspora', ['bankAccounts' => $bankAccounts]);
     }
 }
