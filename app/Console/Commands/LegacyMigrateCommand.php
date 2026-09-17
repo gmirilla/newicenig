@@ -146,18 +146,29 @@ class LegacyMigrateCommand extends Command
     }
 
     /**
+     * Caps how many reasons print to an interactive terminal, for readability
+     * — but never truncates when output isn't a TTY (redirected to a file, or
+     * piped through `tee`/similar), since that's precisely when someone wants
+     * the complete list to review or hand to someone else.
+     *
      * @param  array<int, string>  $reasons
      */
     protected function printReasons(array $reasons, int $limit = 20): void
     {
-        foreach (array_slice($reasons, 0, $limit) as $reason) {
+        $isInteractive = stream_isatty(STDOUT);
+
+        $toShow = $isInteractive ? array_slice($reasons, 0, $limit) : $reasons;
+
+        foreach ($toShow as $reason) {
             $this->line("  - {$reason}");
         }
 
-        $remaining = count($reasons) - $limit;
+        if ($isInteractive) {
+            $remaining = count($reasons) - $limit;
 
-        if ($remaining > 0) {
-            $this->line("  ... and {$remaining} more (redirect output to a file to see all, e.g. `> migrate.log`).");
+            if ($remaining > 0) {
+                $this->line("  ... and {$remaining} more (redirect or pipe the output to a file to see all, e.g. `| tee migrate.log`).");
+            }
         }
     }
 }
