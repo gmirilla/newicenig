@@ -27,7 +27,17 @@ class PaymentImporter
 
     public function run(): void
     {
-        $gatewayId = $this->dryRun ? 0 : PaymentGateway::where('slug', 'paystack')->value('id');
+        // firstOrCreate rather than a plain lookup: a real run must never proceed
+        // with a null gateway id (payments.payment_gateway_id is a NOT NULL FK),
+        // and the app already treats "the paystack gateway row" as something any
+        // payment-writing code path may need to seed on demand — see
+        // App\Livewire\Portal\Concerns\HandlesPaymentMethod::createPayment().
+        $gatewayId = $this->dryRun
+            ? 0
+            : PaymentGateway::firstOrCreate(
+                ['slug' => 'paystack'],
+                ['name' => 'Paystack', 'is_active' => true],
+            )->id;
 
         LegacyPayment::query()->orderBy('id')->chunk(200, function ($legacyPayments) use ($gatewayId): void {
             foreach ($legacyPayments as $legacyPayment) {

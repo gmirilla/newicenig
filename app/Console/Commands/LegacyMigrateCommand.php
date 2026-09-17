@@ -38,6 +38,19 @@ class LegacyMigrateCommand extends Command
             return self::FAILURE;
         }
 
+        // This is a one-shot, largely irreversible data import. --force already
+        // means "actually write" (not "skip confirmation"), so in production we
+        // still require an explicit interactive yes even when --force is passed.
+        if (! $dryRun && $this->laravel->environment('production')) {
+            $this->components->warn('You are about to run legacy:migrate --force against a PRODUCTION environment.');
+
+            if (! $this->confirm('This will write real data and cannot be safely undone. Continue?', false)) {
+                $this->components->error('Aborted.');
+
+                return self::FAILURE;
+            }
+        }
+
         $this->components->info($dryRun
             ? 'Dry run — nothing will be written. Pass --force to actually import.'
             : 'Importing for real — writing to the database.');
@@ -121,12 +134,30 @@ class LegacyMigrateCommand extends Command
             $report->summaryRows(),
         );
 
+        foreach ($report->allSkipped() as $entity => $reasons) {
+            $this->components->warn("Skipped — {$entity}:");
+            $this->printReasons($reasons);
+        }
+
         foreach ($report->allFlagged() as $entity => $reasons) {
             $this->components->warn("Flagged for manual review — {$entity}:");
+            $this->printReasons($reasons);
+        }
+    }
 
-            foreach ($reasons as $reason) {
-                $this->line("  - {$reason}");
-            }
+    /**
+     * @param  array<int, string>  $reasons
+     */
+    protected function printReasons(array $reasons, int $limit = 20): void
+    {
+        foreach (array_slice($reasons, 0, $limit) as $reason) {
+            $this->line("  - {$reason}");
+        }
+
+        $remaining = count($reasons) - $limit;
+
+        if ($remaining > 0) {
+            $this->line("  ... and {$remaining} more (redirect output to a file to see all, e.g. `> migrate.log`).");
         }
     }
 }

@@ -75,4 +75,12 @@ class ImportReport
     {
         return $this->flagged;
     }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    public function allSkipped(): array
+    {
+        return $this->skipped;
+    }
 }

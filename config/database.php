@@ -89,7 +89,7 @@ return [
         // copy of the old app's database — never the live production database
         // directly, and never written to by this application.
         'legacy' => [
-            'driver' => 'mariadb',
+            'driver' => env('LEGACY_DB_CONNECTION', 'mariadb'),
             'host' => env('LEGACY_DB_HOST', '127.0.0.1'),
             'port' => env('LEGACY_DB_PORT', '3306'),
             'database' => env('LEGACY_DB_DATABASE', 'icen_legacy_import'),

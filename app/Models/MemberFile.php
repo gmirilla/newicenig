@@ -16,6 +16,7 @@ class MemberFile extends Model implements HasMedia
         'user_id',
         'user_membership_id',
         'type',
+        'legacy_file_id',
     ];
 
     public function user(): BelongsTo

@@ -4,6 +4,7 @@ namespace App\Services\LegacyMigration;
 
 use App\Legacy\LegacyFile;
 use App\Models\MemberFile;
+use App\Models\User;
 
 /**
  * Imports the old app's `files` table, copying each physical upload from the
@@ -11,6 +12,12 @@ use App\Models\MemberFile;
  * into the new app's Media Library. The old schema has no explicit file
  * category, so the {@see MemberFile} `type` is inferred from the file's name/
  * description/path; anything ambiguous defaults to `other`.
+ *
+ * `fileable_type` in real data is either a membership application (attach
+ * directly) or a user (verified against production data — every genuine
+ * member document, e.g. certificates, is attached to the user, not a specific
+ * membership) — attached to that user's EARLIEST membership, since documents
+ * like certificates are submitted once at registration, not per renewal.
  */
 class FileImporter
 {
@@ -39,19 +46,28 @@ class FileImporter
 
     protected function importOne(LegacyFile $legacy, ?string $storagePath): void
     {
-        if (! str_contains((string) $legacy->fileable_type, 'Membership')) {
+        $fileableType = (string) $legacy->fileable_type;
+
+        // false is a distinct sentinel from null: it means "we don't know how
+        // to handle this fileable type at all" (flagged), vs. a resolvable
+        // type whose target just isn't available in this run (skipped).
+        $newMembershipId = match (true) {
+            str_contains($fileableType, 'Membership') => $this->memberships->newMembershipIdFor((int) $legacy->fileable_id),
+            $fileableType === User::class => $this->memberships->earliestMembershipIdForLegacyUser((int) $legacy->fileable_id),
+            default => false,
+        };
+
+        if ($newMembershipId === false) {
             $this->report->flagged(
                 'files',
-                "Legacy file #{$legacy->id} ({$legacy->name}): fileable type [{$legacy->fileable_type}] is not a membership application — needs manual review."
+                "Legacy file #{$legacy->id} ({$legacy->name}): fileable type [{$fileableType}] is not a member document — needs manual review."
             );
 
             return;
         }
 
-        $newMembershipId = $this->memberships->newMembershipIdFor((int) $legacy->fileable_id);
-
         if (! $this->dryRun && ! $newMembershipId) {
-            $this->report->skipped('files', "Legacy file #{$legacy->id}: membership #{$legacy->fileable_id} was not imported.");
+            $this->report->skipped('files', "Legacy file #{$legacy->id}: no imported membership found for fileable #{$legacy->fileable_id} ({$fileableType}).");
 
             return;
         }
@@ -60,6 +76,14 @@ class FileImporter
 
         if ($this->dryRun) {
             $this->report->imported('files');
+
+            return;
+        }
+
+        // Re-running the import must not duplicate files or media attachments —
+        // each legacy file is only ever copied in once.
+        if (MemberFile::where('legacy_file_id', $legacy->id)->exists()) {
+            $this->report->skipped('files', "Legacy file #{$legacy->id} was already imported.");
 
             return;
         }
@@ -76,6 +100,7 @@ class FileImporter
         $memberFile = MemberFile::create([
             'user_membership_id' => $newMembershipId,
             'type' => $type,
+            'legacy_file_id' => $legacy->id,
         ]);
 
         $memberFile->addMedia($absolutePath)
