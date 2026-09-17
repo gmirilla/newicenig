@@ -6,7 +6,7 @@
 @elseif ($context === 'level_change')
 **{{ $membership->fullName() }}** has applied to change to the **{{ $membership->membershipTier->name }}** tier{{ $membership->previousMembership ? " (from {$membership->previousMembership->membershipTier->name})" : '' }} and paid the fee.
 @else
-**{{ $membership->fullName() }}** has submitted a new **{{ $membership->membershipTier->name }}** membership application and paid the registration fee.
+**{{ $membership->fullName() }}** has submitted a new **{{ $membership->membershipTier->name }}** membership application and paid the application fee.
 @endif
 
 <x-mail::table>

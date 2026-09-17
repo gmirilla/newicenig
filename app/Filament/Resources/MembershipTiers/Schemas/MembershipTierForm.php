@@ -31,8 +31,8 @@ class MembershipTierForm
                             ->default('NGN')
                             ->required()
                             ->helperText('Paystack only processes NGN for this account. Prices in other currencies (e.g. for diaspora bank transfers) are set below.'),
-                        TextInput::make('registration_fee')->numeric()->prefix('₦')->required(),
-                        TextInput::make('renewal_fee')->numeric()->prefix('₦')->required(),
+                        TextInput::make('registration_fee')->numeric()->prefix('₦')->required()->label('Application fee'),
+                        TextInput::make('renewal_fee')->numeric()->prefix('₦')->required()->label('Annual dues'),
                         TextInput::make('min_years_experience')->numeric(),
                         TextInput::make('sort_order')->numeric()->default(0),
                         Toggle::make('requires_employer_info')->default(false),
@@ -57,8 +57,8 @@ class MembershipTierForm
                                     ->options(fn () => BankAccount::query()->pluck('currency', 'currency'))
                                     ->required()
                                     ->distinct(),
-                                TextInput::make('registration_fee')->numeric()->label('Registration fee'),
-                                TextInput::make('renewal_fee')->numeric()->label('Renewal fee'),
+                                TextInput::make('registration_fee')->numeric()->label('Application fee'),
+                                TextInput::make('renewal_fee')->numeric()->label('Annual dues'),
                             ])
                             ->columns(3)
                             ->addActionLabel('Add currency price')

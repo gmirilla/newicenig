@@ -18,7 +18,7 @@
                     <dd class="font-medium text-slate-900 dark:text-white">{{ $this->membership->expires_at?->format('M j, Y') ?? '—' }}</dd>
                 </div>
                 <div class="flex justify-between py-3 text-base">
-                    <dt class="font-semibold text-slate-900 dark:text-white">Renewal fee</dt>
+                    <dt class="font-semibold text-slate-900 dark:text-white">Annual dues</dt>
                     <dd class="font-semibold text-slate-900 dark:text-white">
                         {{ $this->displayCurrency }} {{ number_format($this->displayAmount ?? 0, 2) }}
                     </dd>

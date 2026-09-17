@@ -17,8 +17,8 @@ class MembershipTiersTable
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('abbreviation'),
-                TextColumn::make('registration_fee')->money('NGN'),
-                TextColumn::make('renewal_fee')->money('NGN'),
+                TextColumn::make('registration_fee')->money('NGN')->label('Application fee'),
+                TextColumn::make('renewal_fee')->money('NGN')->label('Annual dues'),
                 IconColumn::make('is_active')->boolean(),
             ])
             ->defaultSort('sort_order')
