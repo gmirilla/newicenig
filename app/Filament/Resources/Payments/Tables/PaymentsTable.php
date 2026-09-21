@@ -66,6 +66,20 @@ class PaymentsTable
 
                         Notification::make()->title('Payment verified')->success()->send();
                     }),
+                Action::make('resendNotification')
+                    ->label('Resend notification')
+                    ->icon(Heroicon::OutlinedEnvelope)
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalDescription('Re-sends the payment notification email — with the member information PDF attached — to the approved mailing list configured in Site Settings.')
+                    ->visible(fn (Payment $record) => $record->status === PaymentStatus::Successful)
+                    ->action(function (Payment $record) {
+                        $sent = app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($record);
+
+                        $sent
+                            ? Notification::make()->title('Notification resent')->success()->send()
+                            : Notification::make()->title('No approved recipients configured')->body('Add recipients under Site Settings first.')->warning()->send();
+                    }),
                 EditAction::make(),
             ])
             ->toolbarActions([

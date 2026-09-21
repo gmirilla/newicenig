@@ -144,6 +144,75 @@ it('does not send a notification when no approved recipients are configured', fu
     Mail::assertNothingSent();
 });
 
+it('resends the mailing list notification for an already-successful payment without altering its state', function () {
+    Mail::fake();
+    setApprovedMailingList(['registrar@icen.test']);
+
+    $tier = MembershipTier::factory()->create(['registration_fee' => 35000]);
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $membership = UserMembership::create([
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::PendingReview,
+        'first_name' => 'Jane',
+        'last_name' => 'Doe',
+        'email' => 'jane@example.com',
+    ]);
+
+    $payment = Payment::create([
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => $membership->id,
+        'payable_type' => UserMembership::class,
+        'amount' => 35000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-RESEND',
+        'status' => \App\Enums\PaymentStatus::Successful,
+        'paid_at' => now(),
+    ]);
+
+    $sent = app(\App\Actions\Payments\HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment);
+
+    expect($sent)->toBeTrue();
+    expect($payment->fresh()->status)->toBe(\App\Enums\PaymentStatus::Successful);
+    expect($membership->fresh()->status)->toBe(MembershipStatus::PendingReview);
+
+    Mail::assertQueued(MembershipPaymentNotification::class, function ($mail) use ($membership) {
+        return $mail->hasTo('registrar@icen.test')
+            && $mail->context === 'registration'
+            && $mail->membership->is($membership);
+    });
+});
+
+it('reports no email was sent when resending without any approved recipients configured', function () {
+    Mail::fake();
+    setApprovedMailingList([]);
+
+    $tier = MembershipTier::factory()->create(['registration_fee' => 35000]);
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $membership = UserMembership::create([
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::PendingReview,
+        'email' => 'jane@example.com',
+    ]);
+
+    $payment = Payment::create([
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => $membership->id,
+        'payable_type' => UserMembership::class,
+        'amount' => 35000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-RESEND-NORECIPIENTS',
+        'status' => \App\Enums\PaymentStatus::Successful,
+        'paid_at' => now(),
+    ]);
+
+    $sent = app(\App\Actions\Payments\HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment);
+
+    expect($sent)->toBeFalse();
+    Mail::assertNothingQueued();
+});
+
 it('renders the member information pdf without errors', function () {
     $tier = MembershipTier::factory()->create();
 

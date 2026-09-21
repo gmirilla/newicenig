@@ -66,6 +66,12 @@
                 </div>
             </dl>
 
+            <div class="mt-6">
+                <x-input-label for="yearOfInduction" value="Year of induction into ICEN" />
+                <x-text-input id="yearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
+                <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
+            </div>
+
             @guest
                 <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">
                     After payment, we'll email {{ $this->membership->email }} a link to set up a password so you can log in and manage your membership going forward.

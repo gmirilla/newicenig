@@ -18,6 +18,7 @@ class UserMembership extends Model
         'membership_tier_id',
         'membership_number',
         'legacy_membership_id',
+        'year_of_induction',
         'status',
         'first_name',
         'middle_name',

@@ -19,11 +19,16 @@ class HandleSuccessfulPayment
 {
     /**
      * @param  array<string, mixed>  $verifiedData  The `data` node of Paystack's verify-transaction response.
+     * @return User|null The account just created for a guest submission (new
+     *                    application, or a renewal claimed via lookup), if
+     *                    any — the caller can use this to log them straight
+     *                    in. Never returned for an account merely matched by
+     *                    email to a pre-existing user (see linkAccount()).
      */
-    public function handle(Payment $payment, array $verifiedData): void
+    public function handle(Payment $payment, array $verifiedData): ?User
     {
         if ($payment->status === PaymentStatus::Successful) {
-            return;
+            return null;
         }
 
         $payment->update([
@@ -36,14 +41,15 @@ class HandleSuccessfulPayment
 
         $payable = $payment->payable()->first();
         $membership = null;
+        $newUser = null;
 
         if ($payable instanceof UserMembership) {
             $membership = $payable;
-            $this->handleMembershipPayment($membership);
+            $newUser = $this->handleMembershipPayment($membership);
             $this->notifyApprovedMailingList($membership, $payment, $membership->previous_membership_id ? 'level_change' : 'registration');
         } elseif ($payable instanceof MembershipRenewal) {
             $membership = $payable->userMembership;
-            $this->handleRenewalPayment($payable, $membership);
+            $newUser = $this->handleRenewalPayment($payable, $membership);
             $this->notifyApprovedMailingList($membership, $payment, 'renewal');
         }
 
@@ -55,37 +61,73 @@ class HandleSuccessfulPayment
         if ($membership && ! $payment->user_id && $membership->user_id) {
             $payment->update(['user_id' => $membership->user_id]);
         }
+
+        return $newUser;
+    }
+
+    /**
+     * Re-sends the "payment received" notification (with the member
+     * information PDF) for an already-successful payment, e.g. when the
+     * original send failed or a staff member needs another copy. Safe to
+     * call any number of times — it doesn't touch payment/membership state,
+     * only re-dispatches the mailing-list email.
+     *
+     * @return bool Whether an email was actually queued — false when no
+     *              recipients are configured in Site Settings, or the
+     *              payment isn't (yet) linked to a membership/renewal.
+     */
+    public function resendApprovedMailingListNotification(Payment $payment): bool
+    {
+        $payable = $payment->payable()->first();
+
+        [$membership, $context] = match (true) {
+            $payable instanceof UserMembership => [$payable, $payable->previous_membership_id ? 'level_change' : 'registration'],
+            $payable instanceof MembershipRenewal => [$payable->userMembership, 'renewal'],
+            default => [null, null],
+        };
+
+        if (! $membership) {
+            return false;
+        }
+
+        return $this->notifyApprovedMailingList($membership, $payment, $context);
     }
 
     /**
      * Email the org's approved internal mailing list (configured in Site Settings)
      * whenever a membership payment or renewal succeeds, attaching a PDF of the
      * member's information for their records.
+     *
+     * @return bool Whether an email was queued (false if no recipients are configured).
      */
-    protected function notifyApprovedMailingList(UserMembership $membership, Payment $payment, string $context): void
+    protected function notifyApprovedMailingList(UserMembership $membership, Payment $payment, string $context): bool
     {
         $recipients = app(GeneralSettings::class)->payment_notification_recipients;
 
         if (empty($recipients)) {
-            return;
+            return false;
         }
 
         Mail::to($recipients)->send(new MembershipPaymentNotification($membership, $payment, $context));
+
+        return true;
     }
 
-    protected function handleMembershipPayment(UserMembership $membership): void
+    protected function handleMembershipPayment(UserMembership $membership): ?User
     {
-        $this->linkAccount($membership);
+        $newUser = $this->linkAccount($membership);
 
         $membership->update([
             'status' => MembershipStatus::PendingReview,
             'submitted_at' => now(),
         ]);
+
+        return $newUser;
     }
 
-    protected function handleRenewalPayment(MembershipRenewal $renewal, UserMembership $membership): void
+    protected function handleRenewalPayment(MembershipRenewal $renewal, UserMembership $membership): ?User
     {
-        $this->linkAccount($membership);
+        $newUser = $this->linkAccount($membership);
 
         $previousExpiry = $membership->expires_at ?? now();
         $newExpiry = $previousExpiry->isFuture() ? $previousExpiry->copy()->addYear() : now()->addYear();
@@ -100,6 +142,8 @@ class HandleSuccessfulPayment
             'status' => MembershipStatus::Active,
             'expires_at' => $newExpiry,
         ]);
+
+        return $newUser;
     }
 
     /**
@@ -109,22 +153,34 @@ class HandleSuccessfulPayment
      * set a password whenever they don't already have a working one, which
      * covers both brand-new accounts and legacy-imported accounts that were
      * never through the claim flow (see User::$password_set_at).
+     *
+     * @return User|null The account, only if it was created here — never one
+     *                    merely matched by email to a pre-existing user, so
+     *                    the caller can safely auto-login it without risking
+     *                    handing a guest control of someone else's account.
      */
-    protected function linkAccount(UserMembership $membership): void
+    protected function linkAccount(UserMembership $membership): ?User
     {
         $user = $membership->user;
+        $newUser = null;
 
         if (! $user) {
             if (! $membership->email) {
-                return;
+                return null;
             }
 
-            $user = User::where('email', $membership->email)->first() ?: User::create([
-                'name' => $membership->fullName() ?: $membership->email,
-                'email' => $membership->email,
-                'phone' => $membership->phone,
-                'password' => Hash::make(Str::random(40)),
-            ]);
+            $user = User::where('email', $membership->email)->first();
+
+            if (! $user) {
+                $user = User::create([
+                    'name' => $membership->fullName() ?: $membership->email,
+                    'email' => $membership->email,
+                    'phone' => $membership->phone,
+                    'password' => Hash::make(Str::random(40)),
+                ]);
+
+                $newUser = $user;
+            }
 
             $membership->update(['user_id' => $user->id]);
         }
@@ -132,5 +188,7 @@ class HandleSuccessfulPayment
         if ($user->password_set_at === null) {
             $user->notify(new SetPasswordInvite);
         }
+
+        return $newUser;
     }
 }

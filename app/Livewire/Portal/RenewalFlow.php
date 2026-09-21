@@ -33,10 +33,13 @@ class RenewalFlow extends Component
 
     public bool $lookupFailed = false;
 
+    public string $yearOfInduction = '';
+
     public function mount(): void
     {
         if (Auth::check()) {
             $this->membershipId = Auth::user()->currentMembership()?->id;
+            $this->yearOfInduction = (string) ($this->membership?->year_of_induction ?? '');
         }
     }
 
@@ -95,6 +98,7 @@ class RenewalFlow extends Component
 
         RateLimiter::clear($this->lookupThrottleKey());
         $this->membershipId = $membership->id;
+        $this->yearOfInduction = (string) ($membership->year_of_induction ?? '');
     }
 
     protected function ensureLookupIsNotRateLimited(): void
@@ -130,6 +134,12 @@ class RenewalFlow extends Component
         $membership = $this->membership;
 
         abort_unless($membership && $this->isEligibleForRenewal, 404);
+
+        $this->validate([
+            'yearOfInduction' => ['required', 'integer', 'min:1960', 'max:'.now()->year],
+        ]);
+
+        $membership->update(['year_of_induction' => $this->yearOfInduction]);
 
         $renewal = MembershipRenewal::create([
             'user_membership_id' => $membership->id,

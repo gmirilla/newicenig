@@ -31,6 +31,7 @@ class UserMembershipForm
                             ->options(collect(MembershipStatus::cases())->mapWithKeys(fn ($case) => [$case->value => $case->label()]))
                             ->required(),
                         TextInput::make('membership_number')->maxLength(255),
+                        TextInput::make('year_of_induction')->label('Year of induction into ICEN')->numeric(),
                         DateTimePicker::make('expires_at'),
                         Toggle::make('directory_opt_in'),
                     ]),

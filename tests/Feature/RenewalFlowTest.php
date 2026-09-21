@@ -34,6 +34,7 @@ it('lets an active member start a renewal and redirects to paystack', function (
 
     Livewire::actingAs($user)
         ->test(\App\Livewire\Portal\RenewalFlow::class)
+        ->set('yearOfInduction', '2015')
         ->call('renew')
         ->assertRedirect('https://checkout.paystack.com/renew123');
 
@@ -41,6 +42,28 @@ it('lets an active member start a renewal and redirects to paystack', function (
     expect($renewal)->not->toBeNull()
         ->and($renewal->user_membership_id)->toBe($membership->id)
         ->and($renewal->payment->status)->toBe(PaymentStatus::Pending);
+
+    expect($membership->fresh()->year_of_induction)->toBe('2015');
+});
+
+it('requires a year of induction before starting a renewal', function () {
+    $tier = MembershipTier::factory()->create(['renewal_fee' => 15000]);
+    $user = User::factory()->create();
+
+    UserMembership::create([
+        'user_id' => $user->id,
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::Active,
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\Portal\RenewalFlow::class)
+        ->set('yearOfInduction', '')
+        ->call('renew')
+        ->assertHasErrors(['yearOfInduction' => 'required']);
+
+    expect(MembershipRenewal::count())->toBe(0);
 });
 
 it('extends membership expiry and marks it active after a successful renewal payment', function () {
@@ -111,12 +134,15 @@ it('lets a guest with no account look up a membership by number and email and st
         ->set('lookupEmail', 'GUEST@example.com')
         ->call('lookup')
         ->assertSet('lookupFailed', false)
+        ->set('yearOfInduction', '2018')
         ->call('renew')
         ->assertRedirect('https://checkout.paystack.com/guest-renew123');
 
     $renewal = MembershipRenewal::first();
     expect($renewal)->not->toBeNull()
         ->and($renewal->user_membership_id)->toBe($membership->id);
+
+    expect($membership->fresh()->year_of_induction)->toBe('2018');
 });
 
 it('gives a guest a generic error for a membership number and email that do not match', function () {
@@ -186,7 +212,8 @@ it('creates and links a user account and invites a guest to set a password after
 
     $renewal->update(['payment_id' => $payment->id]);
 
-    $this->get('/payments/callback?reference=ICEN-GUESTRENEW')->assertRedirect();
+    $this->get('/payments/callback?reference=ICEN-GUESTRENEW')
+        ->assertRedirectToRoute('member.dashboard');
 
     $membership->refresh();
     expect($membership->status)->toBe(MembershipStatus::Active)
@@ -195,6 +222,8 @@ it('creates and links a user account and invites a guest to set a password after
     $user = User::find($membership->user_id);
     expect($user->email)->toBe('claimme@example.com')
         ->and($payment->fresh()->user_id)->toBe($user->id);
+
+    $this->assertAuthenticatedAs($user);
 
     Notification::assertSentTo($user, \App\Notifications\SetPasswordInvite::class);
 });

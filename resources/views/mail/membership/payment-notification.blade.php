@@ -16,6 +16,9 @@
 | Reference | {{ $payment->reference }} |
 | Email | {{ $membership->email }} |
 | Phone | {{ $membership->phone }} |
+@if ($membership->year_of_induction)
+| Year of induction | {{ $membership->year_of_induction }} |
+@endif
 </x-mail::table>
 
 The member's full information sheet is attached to this email as a PDF.

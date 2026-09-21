@@ -84,6 +84,12 @@
             <td class="value">{{ $membership->membership_number ?? '—' }}</td>
             <td class="value">{{ $membership->created_at->format('M j, Y') }}</td>
         </tr>
+        <tr>
+            <td class="label">Year of induction into ICEN</td>
+        </tr>
+        <tr>
+            <td class="value">{{ $membership->year_of_induction ?? '—' }}</td>
+        </tr>
     </table>
 
     <h2>Personal details</h2>
