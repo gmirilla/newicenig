@@ -35,21 +35,25 @@ class HandleSuccessfulPayment
         ]);
 
         $payable = $payment->payable()->first();
+        $membership = null;
 
         if ($payable instanceof UserMembership) {
-            $this->handleMembershipPayment($payable);
-
-            // A brand-new applicant has no account yet when the payment row is
-            // created (it's a guest submission), so the payment can't be linked
-            // to a user until handleMembershipPayment() resolves/creates one above.
-            if (! $payment->user_id && $payable->user_id) {
-                $payment->update(['user_id' => $payable->user_id]);
-            }
-
-            $this->notifyApprovedMailingList($payable, $payment, $payable->previous_membership_id ? 'level_change' : 'registration');
+            $membership = $payable;
+            $this->handleMembershipPayment($membership);
+            $this->notifyApprovedMailingList($membership, $payment, $membership->previous_membership_id ? 'level_change' : 'registration');
         } elseif ($payable instanceof MembershipRenewal) {
-            $this->handleRenewalPayment($payable);
-            $this->notifyApprovedMailingList($payable->userMembership, $payment, 'renewal');
+            $membership = $payable->userMembership;
+            $this->handleRenewalPayment($payable, $membership);
+            $this->notifyApprovedMailingList($membership, $payment, 'renewal');
+        }
+
+        // A guest submission (new application, or a renewal claimed via
+        // membership-number lookup instead of logging in) has no account
+        // linked yet when the payment row is created, so the payment can't be
+        // linked to a user until the handle*Payment() calls above resolve or
+        // create one.
+        if ($membership && ! $payment->user_id && $membership->user_id) {
+            $payment->update(['user_id' => $membership->user_id]);
         }
     }
 
@@ -71,30 +75,7 @@ class HandleSuccessfulPayment
 
     protected function handleMembershipPayment(UserMembership $membership): void
     {
-        $user = $membership->user;
-
-        if (! $user && $membership->email) {
-            $user = User::where('email', $membership->email)->first();
-
-            $isNewUser = false;
-
-            if (! $user) {
-                $user = User::create([
-                    'name' => $membership->fullName() ?: $membership->email,
-                    'email' => $membership->email,
-                    'phone' => $membership->phone,
-                    'password' => Hash::make(Str::random(40)),
-                ]);
-
-                $isNewUser = true;
-            }
-
-            $membership->update(['user_id' => $user->id]);
-
-            if ($isNewUser) {
-                $user->notify(new SetPasswordInvite);
-            }
-        }
+        $this->linkAccount($membership);
 
         $membership->update([
             'status' => MembershipStatus::PendingReview,
@@ -102,9 +83,9 @@ class HandleSuccessfulPayment
         ]);
     }
 
-    protected function handleRenewalPayment(MembershipRenewal $renewal): void
+    protected function handleRenewalPayment(MembershipRenewal $renewal, UserMembership $membership): void
     {
-        $membership = $renewal->userMembership;
+        $this->linkAccount($membership);
 
         $previousExpiry = $membership->expires_at ?? now();
         $newExpiry = $previousExpiry->isFuture() ? $previousExpiry->copy()->addYear() : now()->addYear();
@@ -119,5 +100,37 @@ class HandleSuccessfulPayment
             'status' => MembershipStatus::Active,
             'expires_at' => $newExpiry,
         ]);
+    }
+
+    /**
+     * Resolve or create the User account behind a membership paid for as a
+     * guest — either a brand-new application, or a renewal claimed via
+     * membership-number lookup instead of logging in. Invites the member to
+     * set a password whenever they don't already have a working one, which
+     * covers both brand-new accounts and legacy-imported accounts that were
+     * never through the claim flow (see User::$password_set_at).
+     */
+    protected function linkAccount(UserMembership $membership): void
+    {
+        $user = $membership->user;
+
+        if (! $user) {
+            if (! $membership->email) {
+                return;
+            }
+
+            $user = User::where('email', $membership->email)->first() ?: User::create([
+                'name' => $membership->fullName() ?: $membership->email,
+                'email' => $membership->email,
+                'phone' => $membership->phone,
+                'password' => Hash::make(Str::random(40)),
+            ]);
+
+            $membership->update(['user_id' => $user->id]);
+        }
+
+        if ($user->password_set_at === null) {
+            $user->notify(new SetPasswordInvite);
+        }
     }
 }

@@ -72,8 +72,9 @@
             <p class="mt-4 text-accent-200">
                 Applications are reviewed by our registration committee.
             </p>
-            <div class="mt-8">
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="accent" size="lg">Start your application</x-button>
+                <x-button href="{{ Route::has('renew.lookup') ? route('renew.lookup') : '#' }}" variant="secondary" size="lg">Renew your membership</x-button>
             </div>
         </div>
     </section>

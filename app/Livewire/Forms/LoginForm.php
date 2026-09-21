@@ -39,6 +39,15 @@ class LoginForm extends Form
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Successfully logging in proves this user knows a working password
+        // — self-heals accounts (e.g. legacy imports) that never went through
+        // the explicit "set your password" claim flow.
+        $user = Auth::user();
+
+        if ($user->password_set_at === null) {
+            $user->forceFill(['password_set_at' => now()])->save();
+        }
     }
 
     /**

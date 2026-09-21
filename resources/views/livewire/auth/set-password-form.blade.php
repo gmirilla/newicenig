@@ -27,6 +27,7 @@ new class extends Component
 
         $this->user->forceFill([
             'password' => Hash::make($this->password),
+            'password_set_at' => now(),
             'email_verified_at' => $this->user->email_verified_at ?? now(),
         ])->save();
 

@@ -40,6 +40,11 @@ Route::get('contact', [ContactController::class, 'create'])
 Route::view('join', 'marketing.join')->name('join');
 Route::view('join/{tier}', 'marketing.join')->name('join.tier');
 
+// Public renewal entry point — works for logged-in members and for members
+// with no account (or an unclaimed one), who verify by membership number +
+// email instead. See App\Livewire\Portal\RenewalFlow.
+Route::view('renew-icen-membership', 'marketing.renew')->name('renew.lookup');
+
 Route::get('set-password/{user}', [SetPasswordController::class, 'create'])
     ->middleware('signed')
     ->name('password.set');
