@@ -9,8 +9,12 @@ Route::prefix('member')->name('member.')->middleware(['auth', 'verified'])->grou
     Route::view('profile', 'profile')->name('profile');
     Route::view('renew', 'portal.renew')->name('renew');
     Route::view('change-level', 'portal.change-level')->name('change-level');
-    Route::view('notices', 'portal.notices')->name('notices');
-    Route::view('documents', 'portal.documents')->name('documents');
-    Route::get('documents/{document}/download', [MemberDocumentController::class, 'show'])->name('documents.download');
+
+    Route::middleware('membership.not_revoked')->group(function () {
+        Route::view('notices', 'portal.notices')->name('notices');
+        Route::view('documents', 'portal.documents')->name('documents');
+        Route::get('documents/{document}/download', [MemberDocumentController::class, 'show'])->name('documents.download');
+    });
+
     Route::get('certificate', [CertificateController::class, 'show'])->name('certificate');
 });

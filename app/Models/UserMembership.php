@@ -63,6 +63,9 @@ class UserMembership extends Model
         'submitted_at',
         'verified_at',
         'verified_by',
+        'revoked_at',
+        'revoked_by',
+        'revoke_reason',
         'expires_at',
         'previous_membership_id',
     ];
@@ -78,6 +81,7 @@ class UserMembership extends Model
             'date_of_birth' => 'date',
             'submitted_at' => 'datetime',
             'verified_at' => 'datetime',
+            'revoked_at' => 'datetime',
             'expires_at' => 'datetime',
             'declaration_accepted_at' => 'datetime',
         ];
@@ -96,6 +100,11 @@ class UserMembership extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function revoker(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'revoked_by');
     }
 
     public function previousMembership(): BelongsTo

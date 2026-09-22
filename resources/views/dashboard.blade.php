@@ -7,14 +7,17 @@
 
     @php
         $membership = auth()->user()->currentMembership();
-        $latestNotices = \App\Models\Notice::visible()
-            ->with('membershipTiers')
-            ->orderByDesc('is_pinned')
-            ->orderByDesc('published_at')
-            ->get()
-            ->filter(fn ($notice) => $notice->isVisibleToTier($membership?->membership_tier_id))
-            ->take(3);
-        $latestDocuments = auth()->user()->documents()->latest()->take(3)->get();
+        $isRevoked = $membership?->status === \App\Enums\MembershipStatus::Revoked;
+        $latestNotices = $isRevoked
+            ? collect()
+            : \App\Models\Notice::visible()
+                ->with('membershipTiers')
+                ->orderByDesc('is_pinned')
+                ->orderByDesc('published_at')
+                ->get()
+                ->filter(fn ($notice) => $notice->isVisibleToTier($membership?->membership_tier_id))
+                ->take(3);
+        $latestDocuments = $isRevoked ? collect() : auth()->user()->documents()->latest()->take(3)->get();
     @endphp
 
     <div class="space-y-8">
@@ -121,6 +124,13 @@
                     </div>
                     <x-button href="{{ route('member.renew') }}">Renew membership</x-button>
                 </div>
+            </x-card>
+        @elseif ($isRevoked)
+            <x-card>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Your membership has been revoked</h3>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                    Your ICEN membership has been revoked, and access to the notice board and member documents has been restricted. If you believe this is in error, please contact ICEN support.
+                </p>
             </x-card>
         @elseif (! $membership)
             <x-card>

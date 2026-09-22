@@ -65,9 +65,15 @@ class RenewalFlow extends Component
 
     /**
      * Lets a member with no account (or an unclaimed one) verify who they
-     * are without logging in, by matching their membership number against
-     * the email on file. Rate-limited and deliberately vague on failure so
-     * it can't be used to enumerate valid membership numbers or emails.
+     * are without logging in, by matching their membership number, email,
+     * and year of induction against the record on file. Rate-limited and
+     * deliberately vague on failure so it can't be used to enumerate valid
+     * membership numbers, emails, or induction years.
+     *
+     * Induction year is only enforced once a record actually has one on
+     * file — most don't yet, since it's a new field — in which case
+     * whatever the member enters here is accepted and saved on renew().
+     * Once set, it becomes a genuine third factor for their next renewal.
      */
     public function lookup(): void
     {
@@ -82,6 +88,7 @@ class RenewalFlow extends Component
         $this->validate([
             'lookupMembershipNumber' => ['required', 'string', 'max:100'],
             'lookupEmail' => ['required', 'email', 'max:255'],
+            'yearOfInduction' => ['required', 'integer', 'min:1960', 'max:'.now()->year],
         ]);
 
         $membership = UserMembership::query()
@@ -89,7 +96,12 @@ class RenewalFlow extends Component
             ->whereRaw('LOWER(email) = ?', [Str::lower(trim($this->lookupEmail))])
             ->first();
 
-        if (! $membership) {
+        $matches = $membership && (
+            $membership->year_of_induction === null
+            || (int) $membership->year_of_induction === (int) $this->yearOfInduction
+        );
+
+        if (! $matches) {
             RateLimiter::hit($this->lookupThrottleKey(), 600);
             $this->lookupFailed = true;
 
@@ -98,7 +110,6 @@ class RenewalFlow extends Component
 
         RateLimiter::clear($this->lookupThrottleKey());
         $this->membershipId = $membership->id;
-        $this->yearOfInduction = (string) ($membership->year_of_induction ?? '');
     }
 
     protected function ensureLookupIsNotRateLimited(): void

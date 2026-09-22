@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'membership.active' => \App\Http\Middleware\EnsureMembershipIsActive::class,
+            'membership.not_revoked' => \App\Http\Middleware\EnsureMembershipIsNotRevoked::class,
             'paystack.signature' => \App\Http\Middleware\VerifyPaystackSignature::class,
         ]);
 

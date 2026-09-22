@@ -6,12 +6,15 @@ use App\Enums\MembershipStatus;
 use App\Filament\Exports\UserMembershipExporter;
 use App\Models\UserMembership;
 use App\Notifications\MembershipApproved;
+use App\Notifications\MembershipReinstated;
+use App\Notifications\MembershipRevoked;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ExportAction;
 use Filament\Actions\ExportBulkAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -67,6 +70,51 @@ class UserMembershipsTable
                         }
 
                         Notification::make()->title('Membership approved')->success()->send();
+                    }),
+                Action::make('revoke')
+                    ->icon(Heroicon::OutlinedNoSymbol)
+                    ->color('danger')
+                    ->visible(fn (UserMembership $record) => $record->status !== MembershipStatus::Revoked)
+                    ->requiresConfirmation()
+                    ->modalDescription('This immediately blocks the member from the notice board and document library, and marks their membership Revoked.')
+                    ->schema([
+                        Textarea::make('reason')
+                            ->label('Reason for revocation')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function (UserMembership $record, array $data) {
+                        $record->update([
+                            'status' => MembershipStatus::Revoked,
+                            'revoked_at' => now(),
+                            'revoked_by' => auth()->id(),
+                            'revoke_reason' => $data['reason'],
+                        ]);
+
+                        if ($record->user) {
+                            $record->user->notify(new MembershipRevoked($record));
+                        }
+
+                        Notification::make()->title('Membership revoked')->success()->send();
+                    }),
+                Action::make('reinstate')
+                    ->icon(Heroicon::OutlinedArrowUturnLeft)
+                    ->color('success')
+                    ->visible(fn (UserMembership $record) => $record->status === MembershipStatus::Revoked)
+                    ->requiresConfirmation()
+                    ->modalDescription('Restores this membership to Active (or Expired, if its term has already lapsed) and gives the member back notice board/document access.')
+                    ->action(function (UserMembership $record) {
+                        $record->update([
+                            'status' => $record->expires_at && $record->expires_at->isPast()
+                                ? MembershipStatus::Expired
+                                : MembershipStatus::Active,
+                        ]);
+
+                        if ($record->user) {
+                            $record->user->notify(new MembershipReinstated($record));
+                        }
+
+                        Notification::make()->title('Membership reinstated')->success()->send();
                     }),
                 EditAction::make(),
             ])

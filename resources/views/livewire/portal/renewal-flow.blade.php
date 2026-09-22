@@ -18,16 +18,29 @@
                         <x-input-error :messages="$errors->get('lookupEmail')" class="mt-2" />
                     </div>
 
+                    <div>
+                        <x-input-label for="lookupYearOfInduction" value="Year of induction into ICEN" />
+                        <x-text-input id="lookupYearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
+                        <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
+                    </div>
+
                     @if ($lookupFailed)
-                        <p class="text-sm text-red-600 dark:text-red-400">
-                            We couldn't find a membership matching those details. Double-check your membership number and email, or <a href="{{ route('join') }}" class="underline">apply for a new membership</a>.
-                        </p>
+                        <div>
+                            <p class="text-sm text-red-600 dark:text-red-400">
+                                We couldn't find a membership matching those details. Double-check your membership number and email, <a href="https://icennig.org.ng/contact" class="underline">contact the Secretariat</a> or <a href="{{ route('join') }}" class="underline">apply for a new membership</a>.
+                            </p>
+                        </div>
                     @endif
 
-                    <x-button type="submit" wire:loading.attr="disabled" wire:target="lookup" class="w-full justify-center">
-                        <span wire:loading.remove wire:target="lookup">Find my membership</span>
-                        <span wire:loading wire:target="lookup">Searching…</span>
-                    </x-button>
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <x-button type="submit" wire:loading.attr="disabled" wire:target="lookup" class="w-full justify-center">
+                            <span wire:loading.remove wire:target="lookup">Find my membership</span>
+                            <span wire:loading wire:target="lookup">Searching…</span>
+                        </x-button>
+                        <x-button href="https://icennig.org.ng/contact" target="_blank" variant="secondary" class="w-full justify-center">
+                            Contact Secretariat
+                        </x-button>
+                    </div>
                 </form>
 
                 <p class="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
@@ -66,11 +79,13 @@
                 </div>
             </dl>
 
-            <div class="mt-6">
-                <x-input-label for="yearOfInduction" value="Year of induction into ICEN" />
-                <x-text-input id="yearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
-                <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
-            </div>
+            @auth
+                <div class="mt-6">
+                    <x-input-label for="yearOfInduction" value="Year of induction into ICEN" />
+                    <x-text-input id="yearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
+                    <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
+                </div>
+            @endauth
 
             @guest
                 <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">

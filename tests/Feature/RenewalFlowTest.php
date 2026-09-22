@@ -132,9 +132,9 @@ it('lets a guest with no account look up a membership by number and email and st
     Livewire::test(\App\Livewire\Portal\RenewalFlow::class)
         ->set('lookupMembershipNumber', 'icen/2026/00099')
         ->set('lookupEmail', 'GUEST@example.com')
+        ->set('yearOfInduction', '2018')
         ->call('lookup')
         ->assertSet('lookupFailed', false)
-        ->set('yearOfInduction', '2018')
         ->call('renew')
         ->assertRedirect('https://checkout.paystack.com/guest-renew123');
 
@@ -157,6 +157,44 @@ it('gives a guest a generic error for a membership number and email that do not 
     Livewire::test(\App\Livewire\Portal\RenewalFlow::class)
         ->set('lookupMembershipNumber', 'ICEN/2026/00050')
         ->set('lookupEmail', 'wrong@example.com')
+        ->set('yearOfInduction', '2018')
+        ->call('lookup')
+        ->assertSet('lookupFailed', true)
+        ->assertSet('membershipId', null);
+});
+
+it('accepts any year of induction on first lookup when none is on file yet, and saves it', function () {
+    $membership = UserMembership::create([
+        'membership_tier_id' => MembershipTier::factory()->create()->id,
+        'status' => MembershipStatus::Active,
+        'membership_number' => 'ICEN/2026/00060',
+        'email' => 'first-time@example.com',
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::test(\App\Livewire\Portal\RenewalFlow::class)
+        ->set('lookupMembershipNumber', 'ICEN/2026/00060')
+        ->set('lookupEmail', 'first-time@example.com')
+        ->set('yearOfInduction', '2003')
+        ->call('lookup')
+        ->assertSet('lookupFailed', false)
+        ->assertSet('membershipId', $membership->id);
+});
+
+it('rejects a guest lookup whose year of induction does not match the one already on file', function () {
+    UserMembership::create([
+        'membership_tier_id' => MembershipTier::factory()->create()->id,
+        'status' => MembershipStatus::Active,
+        'membership_number' => 'ICEN/2026/00061',
+        'email' => 'already-set@example.com',
+        'year_of_induction' => '1999',
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    Livewire::test(\App\Livewire\Portal\RenewalFlow::class)
+        ->set('lookupMembershipNumber', 'ICEN/2026/00061')
+        ->set('lookupEmail', 'already-set@example.com')
+        ->set('yearOfInduction', '2010')
         ->call('lookup')
         ->assertSet('lookupFailed', true)
         ->assertSet('membershipId', null);
@@ -173,6 +211,7 @@ it('shows an informational message instead of a payment form for a membership pe
     Livewire::test(\App\Livewire\Portal\RenewalFlow::class)
         ->set('lookupMembershipNumber', 'ICEN/2026/00077')
         ->set('lookupEmail', 'pending@example.com')
+        ->set('yearOfInduction', '2015')
         ->call('lookup')
         ->assertSet('membershipId', $membership->id)
         ->assertSee('still under review');
