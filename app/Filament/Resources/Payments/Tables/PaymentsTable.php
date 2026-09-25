@@ -74,10 +74,16 @@ class PaymentsTable
                     ->modalDescription('Re-sends the payment notification email — with the member information PDF attached — to the approved mailing list configured in Site Settings.')
                     ->visible(fn (Payment $record) => $record->status === PaymentStatus::Successful)
                     ->action(function (Payment $record) {
-                        $sent = app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($record);
+                        try {
+                            $sent = app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($record);
+                        } catch (\DomainException $e) {
+                            Notification::make()->title('Nothing to resend')->body($e->getMessage())->danger()->send();
+
+                            return;
+                        }
 
                         $sent
-                            ? Notification::make()->title('Notification resent')->success()->send()
+                            ? Notification::make()->title('Notification queued')->body('It will be delivered shortly — check the Email Log if it does not arrive.')->success()->send()
                             : Notification::make()->title('No approved recipients configured')->body('Add recipients under Site Settings first.')->warning()->send();
                     }),
                 EditAction::make(),

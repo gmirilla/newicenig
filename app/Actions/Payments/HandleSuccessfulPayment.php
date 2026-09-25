@@ -47,8 +47,7 @@ class HandleSuccessfulPayment
             $membership = $payable;
             $newUser = $this->handleMembershipPayment($membership);
             $this->notifyApprovedMailingList($membership, $payment, $membership->previous_membership_id ? 'level_change' : 'registration');
-        } elseif ($payable instanceof MembershipRenewal) {
-            $membership = $payable->userMembership;
+        } elseif ($payable instanceof MembershipRenewal && ($membership = $payable->userMembership)) {
             $newUser = $this->handleRenewalPayment($payable, $membership);
             $this->notifyApprovedMailingList($membership, $payment, 'renewal');
         }
@@ -73,8 +72,10 @@ class HandleSuccessfulPayment
      * only re-dispatches the mailing-list email.
      *
      * @return bool Whether an email was actually queued — false when no
-     *              recipients are configured in Site Settings, or the
-     *              payment isn't (yet) linked to a membership/renewal.
+     *              recipients are configured in Site Settings.
+     *
+     * @throws \DomainException When the payment isn't linked to a
+     *                          membership/renewal, so there is nothing to send.
      */
     public function resendApprovedMailingListNotification(Payment $payment): bool
     {
@@ -87,7 +88,7 @@ class HandleSuccessfulPayment
         };
 
         if (! $membership) {
-            return false;
+            throw new \DomainException('This payment is not linked to a membership application or renewal.');
         }
 
         return $this->notifyApprovedMailingList($membership, $payment, $context);

@@ -1,6 +1,8 @@
 <?php
 
+use App\Actions\Payments\HandleSuccessfulPayment;
 use App\Enums\MembershipStatus;
+use App\Enums\PaymentStatus;
 use App\Mail\MembershipPaymentNotification;
 use App\Models\MembershipRenewal;
 use App\Models\MembershipTier;
@@ -210,6 +212,95 @@ it('reports no email was sent when resending without any approved recipients con
     $sent = app(\App\Actions\Payments\HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment);
 
     expect($sent)->toBeFalse();
+    Mail::assertNothingQueued();
+});
+
+it('resends the mailing list notification with the renewal context for a successful renewal payment', function () {
+    Mail::fake();
+    setApprovedMailingList(['registrar@icen.test']);
+
+    $tier = MembershipTier::factory()->create(['renewal_fee' => 15000]);
+    $user = User::factory()->create();
+    $membership = UserMembership::create([
+        'user_id' => $user->id,
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::Active,
+        'expires_at' => now()->addYear(),
+    ]);
+    $renewal = MembershipRenewal::create(['user_membership_id' => $membership->id]);
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $payment = Payment::create([
+        'user_id' => $user->id,
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => $renewal->id,
+        'payable_type' => MembershipRenewal::class,
+        'amount' => 15000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-RESEND-RENEWAL',
+        'status' => PaymentStatus::Successful,
+        'paid_at' => now(),
+    ]);
+
+    expect(app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment))->toBeTrue();
+
+    Mail::assertQueued(MembershipPaymentNotification::class, fn ($mail) => $mail->context === 'renewal' && $mail->membership->is($membership));
+});
+
+it('resends the mailing list notification with the level_change context when a previous membership exists', function () {
+    Mail::fake();
+    setApprovedMailingList(['registrar@icen.test']);
+
+    $tier = MembershipTier::factory()->create();
+    $previous = UserMembership::create([
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::Active,
+        'email' => 'jane@example.com',
+    ]);
+    $membership = UserMembership::create([
+        'membership_tier_id' => MembershipTier::factory()->create()->id,
+        'previous_membership_id' => $previous->id,
+        'status' => MembershipStatus::PendingReview,
+        'email' => 'jane@example.com',
+    ]);
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $payment = Payment::create([
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => $membership->id,
+        'payable_type' => UserMembership::class,
+        'amount' => 35000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-RESEND-LEVEL',
+        'status' => PaymentStatus::Successful,
+        'paid_at' => now(),
+    ]);
+
+    expect(app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment))->toBeTrue();
+
+    Mail::assertQueued(MembershipPaymentNotification::class, fn ($mail) => $mail->context === 'level_change');
+});
+
+it('throws a clear error when resending a payment that is not linked to a membership or renewal', function () {
+    Mail::fake();
+    setApprovedMailingList(['registrar@icen.test']);
+
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $payment = Payment::create([
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => 999999,
+        'payable_type' => UserMembership::class,
+        'amount' => 35000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-RESEND-ORPHAN',
+        'status' => PaymentStatus::Successful,
+        'paid_at' => now(),
+    ]);
+
+    expect(fn () => app(HandleSuccessfulPayment::class)->resendApprovedMailingListNotification($payment))
+        ->toThrow(DomainException::class, 'not linked to a membership');
+
     Mail::assertNothingQueued();
 });
 
