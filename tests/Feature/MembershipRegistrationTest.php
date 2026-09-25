@@ -2,6 +2,7 @@
 
 use App\Enums\MembershipStatus;
 use App\Enums\PaymentStatus;
+use App\Livewire\Portal\MembershipRegistrationWizard;
 use App\Models\MembershipTier;
 use App\Models\Payment;
 use App\Models\UserMembership;
@@ -28,7 +29,7 @@ it('walks through the full registration wizard and redirects to paystack', funct
         'requires_employer_info' => false,
     ]);
 
-    Livewire::test(\App\Livewire\Portal\MembershipRegistrationWizard::class)
+    Livewire::test(MembershipRegistrationWizard::class)
         ->call('selectTier', $tier->id)
         ->assertSet('step', 2)
         // Step 2: personal details
@@ -99,16 +100,41 @@ it('walks through the full registration wizard and redirects to paystack', funct
 it('blocks moving past the personal details step without required fields', function () {
     $tier = MembershipTier::factory()->create();
 
-    Livewire::test(\App\Livewire\Portal\MembershipRegistrationWizard::class)
+    Livewire::test(MembershipRegistrationWizard::class)
         ->call('selectTier', $tier->id)
         ->call('continuePersonalDetails')
         ->assertHasErrors(['first_name', 'last_name', 'gender', 'date_of_birth', 'marital_status', 'passport_photo'])
         ->assertSet('step', 2);
 });
 
-function advanceToStep5(\App\Models\MembershipTier $tier)
+it('rejects a passport photo larger than 1MB', function () {
+    $tier = MembershipTier::factory()->create();
+
+    Livewire::test(MembershipRegistrationWizard::class)
+        ->call('selectTier', $tier->id)
+        ->set('passport_photo', UploadedFile::fake()->image('passport.jpg')->size(1025))
+        ->call('continuePersonalDetails')
+        ->assertHasErrors(['passport_photo' => 'max']);
+});
+
+it('rejects an education certificate larger than 1MB and accepts one at the limit', function () {
+    $tier = MembershipTier::factory()->create();
+
+    $component = Livewire::test(MembershipRegistrationWizard::class)
+        ->call('selectTier', $tier->id)
+        ->set('higher_institution_certificate_file', UploadedFile::fake()->create('degree.pdf', 1025))
+        ->call('continueEducation')
+        ->assertHasErrors(['higher_institution_certificate_file' => 'max']);
+
+    $component
+        ->set('higher_institution_certificate_file', UploadedFile::fake()->create('degree.pdf', 1024))
+        ->call('continueEducation')
+        ->assertHasNoErrors('higher_institution_certificate_file');
+});
+
+function advanceToStep5(MembershipTier $tier)
 {
-    return Livewire::test(\App\Livewire\Portal\MembershipRegistrationWizard::class)
+    return Livewire::test(MembershipRegistrationWizard::class)
         ->call('selectTier', $tier->id)
         ->set('first_name', 'Jane')
         ->set('last_name', 'Doe')

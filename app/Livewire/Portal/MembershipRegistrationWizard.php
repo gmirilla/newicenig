@@ -14,6 +14,9 @@ class MembershipRegistrationWizard extends Component
 {
     use HandlesPaymentMethod, WithFileUploads;
 
+    /** Per-file size cap (in KB) for every document uploaded with the application. */
+    public const MAX_DOCUMENT_KB = 1024;
+
     public int $step = 1;
 
     public int $totalSteps = 7;
@@ -144,6 +147,21 @@ class MembershipRegistrationWizard extends Component
         $this->step = max(1, $this->step - 1);
     }
 
+    /**
+     * @return array<string, string>
+     */
+    protected function messages(): array
+    {
+        $tooLarge = 'The :attribute must not be larger than 1 MB. Please compress or resize it and try again.';
+
+        return [
+            'passport_photo.max' => $tooLarge,
+            'primary_school_certificate_file.max' => $tooLarge,
+            'secondary_school_certificate_file.max' => $tooLarge,
+            'higher_institution_certificate_file.max' => $tooLarge,
+        ];
+    }
+
     public function continuePersonalDetails(): void
     {
         $this->validate([
@@ -155,7 +173,7 @@ class MembershipRegistrationWizard extends Component
             'place_of_birth' => ['nullable', 'string', 'max:255'],
             'nationality' => ['required', 'string', 'max:255'],
             'marital_status' => ['required', 'in:single,married,divorced,widowed'],
-            'passport_photo' => ['required', 'image', 'max:2048'],
+            'passport_photo' => ['required', 'image', 'max:'.self::MAX_DOCUMENT_KB],
         ]);
 
         $this->step = 3;
@@ -184,16 +202,16 @@ class MembershipRegistrationWizard extends Component
         $this->validate([
             'primary_school' => ['nullable', 'string', 'max:255'],
             'primary_school_year' => ['nullable', 'string', 'max:9'],
-            'primary_school_certificate_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'primary_school_certificate_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:'.self::MAX_DOCUMENT_KB],
             'secondary_school' => ['nullable', 'string', 'max:255'],
             'secondary_school_year' => ['nullable', 'string', 'max:9'],
-            'secondary_school_certificate_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'secondary_school_certificate_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:'.self::MAX_DOCUMENT_KB],
             'higher_institution' => ['required', 'string', 'max:255'],
             'higher_institution_course' => ['required', 'string', 'max:255'],
             'higher_institution_year' => ['required', 'string', 'max:9'],
             'higher_institution_grade' => ['nullable', 'string', 'max:255'],
             'higher_institution_second_degree' => ['nullable', 'string', 'max:255'],
-            'higher_institution_certificate_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'higher_institution_certificate_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:'.self::MAX_DOCUMENT_KB],
         ]);
 
         $this->step = 5;

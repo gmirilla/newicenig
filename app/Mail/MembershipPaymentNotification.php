@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Payment;
 use App\Models\UserMembership;
 use App\Services\Certificates\MemberInformationPdf;
+use App\Services\MemberDocuments\ApplicationDocumentAttachments;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,6 +17,9 @@ use Illuminate\Queue\SerializesModels;
 class MembershipPaymentNotification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
+
+    /** @var array{attachments: array<int, Attachment>, attached: array<int, string>, skipped: array<int, string>}|null */
+    protected ?array $documents = null;
 
     /**
      * @param  'registration'|'renewal'|'level_change'  $context
@@ -39,8 +43,14 @@ class MembershipPaymentNotification extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
+        $documents = $this->documents();
+
         return new Content(
             markdown: 'mail.membership.payment-notification',
+            with: [
+                'attachedDocuments' => $documents['attached'],
+                'skippedDocuments' => $documents['skipped'],
+            ],
         );
     }
 
@@ -56,6 +66,22 @@ class MembershipPaymentNotification extends Mailable implements ShouldQueue
                 fn () => app(MemberInformationPdf::class)->build($this->membership)->output(),
                 $filename,
             )->withMime('application/pdf'),
+            ...$this->documents()['attachments'],
         ];
+    }
+
+    /**
+     * The applicant's uploaded documents. Only new applications and level
+     * changes carry them — a renewal doesn't upload anything. Resolved lazily
+     * (and once) at send time so nothing file-related is serialized onto the
+     * queue.
+     *
+     * @return array{attachments: array<int, Attachment>, attached: array<int, string>, skipped: array<int, string>}
+     */
+    protected function documents(): array
+    {
+        return $this->documents ??= $this->context === 'renewal'
+            ? ['attachments' => [], 'attached' => [], 'skipped' => []]
+            : app(ApplicationDocumentAttachments::class)->for($this->membership);
     }
 }

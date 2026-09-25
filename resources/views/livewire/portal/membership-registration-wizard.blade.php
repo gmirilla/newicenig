@@ -110,7 +110,7 @@
                 <div class="sm:col-span-3">
                     <x-input-label for="passport_photo" value="Passport photograph" />
                     <x-file-input id="passport_photo" wire:model="passport_photo" accept="image/*" />
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">A recent passport-style photo, used on your membership certificate.</p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">A recent passport-style photo, used on your membership certificate (JPG or PNG, max 1MB).</p>
                     <p wire:loading wire:target="passport_photo" class="mt-2 flex items-center gap-2 text-xs font-medium text-brand-600 dark:text-brand-400">
                         <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                         Uploading…
@@ -216,6 +216,7 @@
                         <x-text-input placeholder="Year passed out" class="block w-full" wire:model="primary_school_year" />
                         <div>
                             <x-file-input wire:model="primary_school_certificate_file" accept=".pdf,image/*" />
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF, JPG or PNG, max 1MB.</p>
                             <x-input-error :messages="$errors->get('primary_school_certificate_file')" class="mt-1" />
                         </div>
                     </div>
@@ -228,6 +229,7 @@
                         <x-text-input placeholder="Year passed out" class="block w-full" wire:model="secondary_school_year" />
                         <div>
                             <x-file-input wire:model="secondary_school_certificate_file" accept=".pdf,image/*" />
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF, JPG or PNG, max 1MB.</p>
                             <x-input-error :messages="$errors->get('secondary_school_certificate_file')" class="mt-1" />
                         </div>
                     </div>
@@ -253,6 +255,7 @@
                         <div class="sm:col-span-2">
                             <x-input-label value="Certificate" />
                             <x-file-input wire:model="higher_institution_certificate_file" accept=".pdf,image/*" />
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">PDF, JPG or PNG, max 1MB.</p>
                             <x-input-error :messages="$errors->get('higher_institution_certificate_file')" class="mt-1" />
                         </div>
                     </div>

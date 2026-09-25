@@ -23,6 +23,13 @@
 
 The member's full information sheet is attached to this email as a PDF.
 
+@if (count($attachedDocuments))
+Uploaded documents attached: {{ implode(', ', $attachedDocuments) }}.
+@endif
+@if (count($skippedDocuments))
+**Not attached** — open them from the admin panel instead: {{ implode(', ', $skippedDocuments) }}.
+@endif
+
 @if ($context !== 'renewal')
 <x-mail::button :url="route('filament.admin.resources.user-memberships.index')">
 Review in admin panel
