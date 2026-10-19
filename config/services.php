@@ -38,4 +38,14 @@ return [
     // Paystack credentials are managed at Admin → Membership → Paystack Settings (App\Settings\PaystackSettings),
     // not here. PAYSTACK_* env vars only seed the initial values the first time that settings migration runs.
 
+    // A "dead man's switch" URL (e.g. a healthchecks.io check) pinged every
+    // minute by App\Console\Commands\PingSchedulerHeartbeat, scheduled in
+    // routes/console.php. It's the only way to detect cron dying entirely —
+    // nothing scheduled BY cron can notice cron itself has stopped; the
+    // monitoring service alerts instead when the ping goes silent. Left
+    // blank, the heartbeat command is skipped (no-op), so this is opt-in.
+    'scheduler_heartbeat' => [
+        'url' => env('SCHEDULE_HEARTBEAT_URL'),
+    ],
+
 ];
