@@ -2,13 +2,17 @@
 
 use App\Enums\MembershipStatus;
 use App\Enums\PaymentStatus;
+use App\Jobs\VerifyPaystackPayment;
 use App\Models\MembershipTier;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use App\Models\User;
 use App\Models\UserMembership;
+use App\Notifications\SetPasswordInvite;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
@@ -49,13 +53,13 @@ it('activates the membership toward review, invites, and auto-logs-in a new user
     expect($payment->fresh()->status)->toBe(PaymentStatus::Successful);
     expect($membership->fresh()->status)->toBe(MembershipStatus::PendingReview);
 
-    $user = \App\Models\User::where('email', 'newmember@example.com')->first();
+    $user = User::where('email', 'newmember@example.com')->first();
     expect($user)->not->toBeNull()
         ->and($user->email_verified_at)->not->toBeNull();
 
     $this->assertAuthenticatedAs($user);
 
-    Notification::assertSentTo($user, \App\Notifications\SetPasswordInvite::class);
+    Notification::assertSentTo($user, SetPasswordInvite::class);
 });
 
 it('sends an already-existing member matched by email to the plain success page instead of auto-logging them in', function () {
@@ -68,7 +72,7 @@ it('sends an already-existing member matched by email to the plain success page 
         ]),
     ]);
 
-    $existingUser = \App\Models\User::factory()->create(['email' => 'already@example.com']);
+    $existingUser = User::factory()->create(['email' => 'already@example.com']);
 
     $tier = MembershipTier::factory()->create(['registration_fee' => 35000]);
     $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
@@ -97,7 +101,7 @@ it('sends an already-existing member matched by email to the plain success page 
     expect($membership->fresh()->user_id)->toBe($existingUser->id);
 });
 
-it('leaves the payment pending when paystack reports a failed transaction', function () {
+it('marks the payment failed immediately when paystack reports a failed transaction', function () {
     Http::fake([
         '*/transaction/verify/*' => Http::response([
             'status' => true,
@@ -125,6 +129,46 @@ it('leaves the payment pending when paystack reports a failed transaction', func
 
     $this->get('/payments/callback?reference=ICEN-FAILTEST')->assertRedirect();
 
-    expect($payment->fresh()->status)->toBe(PaymentStatus::Pending);
+    expect($payment->fresh()->status)->toBe(PaymentStatus::Failed);
     expect($membership->fresh()->status)->toBe(MembershipStatus::PendingPayment);
+});
+
+it('schedules an automated recheck when paystack reports the transaction as still pending', function () {
+    Queue::fake();
+
+    Http::fake([
+        '*/transaction/verify/*' => Http::response([
+            'status' => true,
+            'data' => ['status' => 'pending', 'reference' => 'ICEN-STILLPENDING'],
+        ]),
+    ]);
+
+    $tier = MembershipTier::factory()->create();
+    $gateway = PaymentGateway::create(['name' => 'Paystack', 'slug' => 'paystack', 'is_active' => true]);
+
+    $membership = UserMembership::create([
+        'membership_tier_id' => $tier->id,
+        'status' => MembershipStatus::PendingPayment,
+        'email' => 'stillpending@example.com',
+    ]);
+
+    $payment = Payment::create([
+        'payment_gateway_id' => $gateway->id,
+        'payable_id' => $membership->id,
+        'payable_type' => UserMembership::class,
+        'amount' => 15000,
+        'currency' => 'NGN',
+        'reference' => 'ICEN-STILLPENDING',
+    ]);
+
+    $this->get('/payments/callback?reference=ICEN-STILLPENDING')->assertRedirect();
+
+    $payment->refresh();
+    expect($payment->status)->toBe(PaymentStatus::Pending);
+    expect($payment->paystack_check_attempts)->toBe(1);
+    expect($payment->next_paystack_check_at)->not->toBeNull();
+
+    Queue::assertPushed(VerifyPaystackPayment::class, function ($job) use ($payment) {
+        return $job->paymentId === $payment->id;
+    });
 });

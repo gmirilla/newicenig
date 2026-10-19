@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Payments;
 
+use App\Actions\Payments\CheckPendingPaystackPayment;
 use App\Actions\Payments\HandleSuccessfulPayment;
+use App\Enums\PaymentMethod;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\User;
 use App\Services\Paystack\PaystackClient;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
@@ -18,6 +21,7 @@ class PaymentController extends Controller
     public function __construct(
         protected PaystackClient $paystack,
         protected HandleSuccessfulPayment $handleSuccessfulPayment,
+        protected CheckPendingPaystackPayment $checkPendingPayment,
     ) {}
 
     public function callback(Request $request): RedirectResponse
@@ -54,7 +58,7 @@ class PaymentController extends Controller
         return redirect()->to($user->defaultDashboardUrl());
     }
 
-    public function webhook(Request $request): \Illuminate\Http\Response
+    public function webhook(Request $request): Response
     {
         $reference = $request->input('data.reference');
 
@@ -82,6 +86,16 @@ class PaymentController extends Controller
 
         if (($data['status'] ?? null) === 'success') {
             return $this->handleSuccessfulPayment->handle($payment, $data);
+        }
+
+        // Paystack hasn't confirmed this one way or the other yet — this is
+        // usually just settlement lag right after redirect. Rather than
+        // leaving it stuck "pending" forever, hand this result to the
+        // automated recheck chain (5 attempts, 30s apart — see
+        // CheckPendingPaystackPayment), reusing the check we just made
+        // instead of asking Paystack again immediately.
+        if ($payment->payment_method === PaymentMethod::Paystack) {
+            $this->checkPendingPayment->handleWithResult($payment, $data);
         }
 
         return null;

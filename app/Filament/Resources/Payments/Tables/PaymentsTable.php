@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payments\Tables;
 
+use App\Actions\Payments\CheckPendingPaystackPayment;
 use App\Actions\Payments\HandleSuccessfulPayment;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -65,6 +66,22 @@ class PaymentsTable
                         app(HandleSuccessfulPayment::class)->handle($record, ['channel' => 'bank_transfer']);
 
                         Notification::make()->title('Payment verified')->success()->send();
+                    }),
+                Action::make('recheckPaystack')
+                    ->label('Recheck with Paystack')
+                    ->icon(Heroicon::OutlinedArrowPath)
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalDescription('Asks Paystack for this transaction\'s current status right now, and restarts the automated 5-check retry if it\'s still not confirmed.')
+                    ->visible(fn (Payment $record) => $record->status === PaymentStatus::Pending && $record->payment_method === PaymentMethod::Paystack)
+                    ->action(function (Payment $record) {
+                        $result = app(CheckPendingPaystackPayment::class)->recheckManually($record);
+
+                        match ($result) {
+                            'resolved' => Notification::make()->title('Resolved')->body('Payment status: '.$record->fresh()->status->label())->success()->send(),
+                            'still_pending' => Notification::make()->title('Still pending')->body('Paystack has not confirmed this yet — the automated retries have restarted.')->warning()->send(),
+                            default => Notification::make()->title('Nothing to recheck')->warning()->send(),
+                        };
                     }),
                 Action::make('resendNotification')
                     ->label('Resend notification')

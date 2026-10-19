@@ -31,6 +31,8 @@ class Payment extends Model implements HasMedia
         'channel',
         'paid_at',
         'raw_gateway_response',
+        'paystack_check_attempts',
+        'next_paystack_check_at',
     ];
 
     protected function casts(): array
@@ -41,6 +43,7 @@ class Payment extends Model implements HasMedia
             'payment_method' => PaymentMethod::class,
             'paid_at' => 'datetime',
             'raw_gateway_response' => 'array',
+            'next_paystack_check_at' => 'datetime',
         ];
     }
 
