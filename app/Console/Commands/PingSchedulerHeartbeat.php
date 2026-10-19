@@ -36,6 +36,7 @@ class PingSchedulerHeartbeat extends Command
 
         try {
             Http::timeout(5)->get($url);
+            Log::debug('Scheduler heartbeat ping sent.');
         } catch (\Throwable $e) {
             Log::warning('Scheduler heartbeat ping failed: '.$e->getMessage());
         }
