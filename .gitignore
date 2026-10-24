@@ -25,3 +25,11 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /public/fonts
+
+# Local dev database (DB_DATABASE in .env resolves to this bare filename at
+# the project root) — was accidentally tracked; untracked in
+# chore/untrack-local-sqlite-db. Local copies are kept on disk, just no
+# longer version-controlled.
+/icen_portal
+*.sqlite
+*.sqlite3
