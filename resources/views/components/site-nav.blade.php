@@ -1,10 +1,11 @@
 @php
+    $branding = app(\App\Settings\BrandingSettings::class);
     $links = [
         
    
         ['label' => 'Membership', 'route' => 'membership'],
         ['label' => 'Resources', 'route' => 'resources.index'],
-        ['label' => 'Contact', 'route' => 'https://new.icennig.org.ng/contact'],
+        ['label' => 'Contact', 'route' => 'contact'],
     ];
 @endphp
 
@@ -12,7 +13,7 @@
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
             <x-app-logo class="h-10" />
-            <span class="text-lg font-bold tracking-tight text-accent-800 dark:text-accent-300">ICEN</span>
+            <span class="text-lg font-bold tracking-tight text-accent-800 dark:text-accent-300">{{ $branding->brand_short_name }}</span>
         </a>
 
         <div class="hidden lg:flex lg:items-center lg:gap-6">

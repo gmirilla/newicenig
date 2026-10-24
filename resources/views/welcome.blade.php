@@ -1,3 +1,7 @@
+@php
+    $branding = app(\App\Settings\BrandingSettings::class);
+@endphp
+
 <x-layouts.marketing>
     <!-- Hero -->
     <section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 text-white">
@@ -6,23 +10,24 @@
 
         <div class="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
             <div class="mx-auto max-w-3xl text-center">
-                <p class="inline-flex items-center gap-2 rounded-full border border-accent-400/40 bg-accent-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent-300">
-                    <span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>
-                    Chartered. Certified. Trusted.
-                </p>
+                @if ($branding->hero_eyebrow)
+                    <p class="inline-flex items-center gap-2 rounded-full border border-accent-400/40 bg-accent-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-accent-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>
+                        {{ $branding->hero_eyebrow }}
+                    </p>
+                @endif
 
                 <h1 class="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl">
-                    The professional home for Nigeria's economists
+                    {{ $branding->hero_headline }}
                 </h1>
 
                 <p class="mt-6 text-lg leading-8 text-brand-100">
-                    ICEN certifies, develops, and represents professional economists across Nigeria — setting the
-                    standard for economic practice through membership, continuing education, and advocacy.
+                    {{ $branding->hero_subheadline }}
                 </p>
 
                 <div class="mt-10 flex items-center justify-center gap-4">
-                    <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="accent" size="lg">Become a member</x-button>
-                    <x-button href="https://icennig.org.ng/" variant="secondary" size="lg" class="!bg-white/10 !text-white !ring-white/30 hover:!bg-white/20">Learn more</x-button>
+                    <x-button href="{{ Route::has('join') ? route('join') : '#' }}" variant="accent" size="lg">{{ $branding->hero_cta_label }}</x-button>
+                    <x-button href="{{ Route::has('about') ? route('about') : '#' }}" variant="secondary" size="lg" class="!bg-white/10 !text-white !ring-white/30 hover:!bg-white/20">Learn more</x-button>
                 </div>
             </div>
         </div>

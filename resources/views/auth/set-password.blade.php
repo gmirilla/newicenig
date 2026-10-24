@@ -1,7 +1,7 @@
 <x-layouts.guest>
     <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Set your password</h2>
     <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-        Welcome, {{ $user->name }}. Choose a password to finish setting up your ICEN member account.
+        Welcome, {{ $user->name }}. Choose a password to finish setting up your {{ app(\App\Settings\BrandingSettings::class)->brand_short_name }} member account.
     </p>
 
     <livewire:auth.set-password-form :user="$user" />

@@ -1,13 +1,18 @@
+@php
+    $branding = app(\App\Settings\BrandingSettings::class);
+    $orgName = app(\App\Settings\GeneralSettings::class)->org_name;
+@endphp
+
 <footer class="bg-brand-surface text-accent-100">
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div class="grid gap-10 lg:grid-cols-4">
             <div class="lg:col-span-2">
                 <div class="flex items-center gap-2">
                     <x-app-logo class="h-10" />
-                    <span class="text-lg font-bold text-white">ICEN</span>
+                    <span class="text-lg font-bold text-white">{{ $branding->brand_short_name }}</span>
                 </div>
                 <p class="mt-4 max-w-sm text-sm text-accent-100/80">
-                    The Institute of Chartered Economists of Nigeria — advancing the economics profession through certification, standards, and continuing professional development.
+                    {{ $branding->footer_tagline }}
                 </p>
             </div>
 <!-- Comment out Footer links for now, we can add them back later if needed
@@ -33,7 +38,7 @@
     -->
 
         <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-accent-800 pt-6 sm:flex-row">
-            <p class="text-sm text-accent-300/80">&copy; {{ date('Y') }} Institute of Chartered Economists of Nigeria. All rights reserved.</p>
+            <p class="text-sm text-accent-300/80">&copy; {{ date('Y') }} {{ $orgName }}. All rights reserved.</p>
         </div>
     </div>
 </footer>

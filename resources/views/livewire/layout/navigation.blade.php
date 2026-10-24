@@ -29,6 +29,8 @@ new class extends Component
         ['label' => 'Renew Membership', 'route' => 'member.renew', 'icon' => 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'],
         ['label' => 'Profile', 'route' => 'member.profile', 'icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'],
     ];
+
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
 @endphp
 
 <div x-data="{ mobileOpen: false }">
@@ -36,7 +38,7 @@ new class extends Component
     <div class="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden dark:border-white/10 dark:bg-slate-900">
         <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
             <x-app-logo class="h-8" />
-            <span class="font-bold text-slate-900 dark:text-white">ICEN</span>
+            <span class="font-bold text-slate-900 dark:text-white">{{ $brandShortName }}</span>
         </a>
         <div class="flex items-center gap-1">
             <livewire:layout.notification-bell />
@@ -57,7 +59,7 @@ new class extends Component
         <div class="hidden items-center justify-between gap-2 border-b border-slate-200 px-6 py-5 lg:flex dark:border-white/10">
             <a href="{{ route('home') }}" wire:navigate class="flex items-center gap-2">
                 <x-app-logo class="h-9" />
-                <span class="text-lg font-bold text-slate-900 dark:text-white">ICEN</span>
+                <span class="text-lg font-bold text-slate-900 dark:text-white">{{ $brandShortName }}</span>
             </a>
             <livewire:layout.notification-bell />
         </div>

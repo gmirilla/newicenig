@@ -9,9 +9,10 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-        <link rel="icon" href="{{ asset('images/icen-mark.jpg') }}" type="image/jpeg">
+        <link rel="icon" href="{{ app(\App\Services\Branding\BrandingPresenter::class)->faviconUrl() }}">
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <x-branding-style />
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-slate-100 dark:bg-slate-950">

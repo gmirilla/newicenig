@@ -85,7 +85,7 @@
             <td class="value">{{ $membership->created_at->format('M j, Y') }}</td>
         </tr>
         <tr>
-            <td class="label">Year of induction into ICEN</td>
+            <td class="label">Year of induction into {{ app(\App\Settings\BrandingSettings::class)->brand_short_name }}</td>
         </tr>
         <tr>
             <td class="value">{{ $membership->year_of_induction ?? '—' }}</td>
