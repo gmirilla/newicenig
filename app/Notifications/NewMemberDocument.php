@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\MemberDocument;
+use App\Settings\BrandingSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -22,10 +23,12 @@ class NewMemberDocument extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $brandShortName = app(BrandingSettings::class)->brand_short_name;
+
         return (new MailMessage)
             ->subject("New document available: {$this->document->title}")
             ->greeting("Hi {$notifiable->name},")
-            ->line("A new document has been added to your ICEN member account: \"{$this->document->title}\".")
+            ->line("A new document has been added to your {$brandShortName} member account: \"{$this->document->title}\".")
             ->action('View my documents', route('member.documents'));
     }
 

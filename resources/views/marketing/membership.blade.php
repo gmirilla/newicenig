@@ -1,10 +1,14 @@
+@php
+    $branding = app(\App\Settings\BrandingSettings::class);
+@endphp
+
 <x-layouts.marketing title="Membership">
     <section class="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <x-section-header
             align="center"
             eyebrow="Membership"
             heading="Join the Institute"
-            subheading="ICEN membership recognises professional competence in economics and gives you access to certification, continuing education, and a national network of peers."
+            :subheading="$branding->membership_intro"
         />
     </section>
 

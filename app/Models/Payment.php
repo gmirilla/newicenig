@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Settings\BrandingSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -83,6 +84,13 @@ class Payment extends Model implements HasMedia
 
     public static function generateReference(): string
     {
-        return 'ICEN-'.Str::upper(Str::random(12));
+        // Sent to Paystack as the transaction reference, so keep it to safe
+        // characters regardless of what's typed into Branding settings —
+        // falls back to a generic prefix if the short name has nothing
+        // alphanumeric in it at all.
+        $shortName = app(BrandingSettings::class)->brand_short_name;
+        $prefix = Str::upper(preg_replace('/[^A-Za-z0-9]/', '', $shortName)) ?: 'PAY';
+
+        return "{$prefix}-".Str::upper(Str::random(12));
     }
 }

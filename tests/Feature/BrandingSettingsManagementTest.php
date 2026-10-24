@@ -40,7 +40,9 @@ it('saves updated branding settings', function () {
             'hero_subheadline' => 'A brand new subheading.',
             'hero_cta_label' => 'Join today',
             'footer_tagline' => 'A brand new footer tagline.',
+            'copyright_text' => 'A Brand New Org. All rights reserved.',
             'site_tagline' => 'A brand new meta description.',
+            'membership_intro' => 'A brand new membership pitch.',
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -49,4 +51,6 @@ it('saves updated branding settings', function () {
     expect($settings->brand_short_name)->toBe('NEWORG');
     expect($settings->color_brand)->toBe('#1234ab');
     expect($settings->hero_headline)->toBe('A brand new headline');
+    expect($settings->copyright_text)->toBe('A Brand New Org. All rights reserved.');
+    expect($settings->membership_intro)->toBe('A brand new membership pitch.');
 });

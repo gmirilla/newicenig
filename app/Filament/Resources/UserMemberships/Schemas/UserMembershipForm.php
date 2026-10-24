@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UserMemberships\Schemas;
 
 use App\Enums\MembershipStatus;
 use App\Models\MembershipTier;
+use App\Settings\BrandingSettings;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -31,7 +32,7 @@ class UserMembershipForm
                             ->options(collect(MembershipStatus::cases())->mapWithKeys(fn ($case) => [$case->value => $case->label()]))
                             ->required(),
                         TextInput::make('membership_number')->maxLength(255),
-                        TextInput::make('year_of_induction')->label('Year of induction into ICEN')->numeric(),
+                        TextInput::make('year_of_induction')->label('Year of induction into '.app(BrandingSettings::class)->brand_short_name)->numeric(),
                         DateTimePicker::make('expires_at'),
                         Toggle::make('directory_opt_in'),
                     ]),

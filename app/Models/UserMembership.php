@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MembershipStatus;
+use App\Settings\BrandingSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -142,7 +143,8 @@ class UserMembership extends Model
     {
         $year = now()->year;
         $sequence = static::whereYear('created_at', $year)->whereNotNull('membership_number')->count() + 1;
+        $prefix = app(BrandingSettings::class)->brand_short_name;
 
-        return sprintf('ICEN/%d/%05d', $year, $sequence);
+        return sprintf('%s/%d/%05d', $prefix, $year, $sequence);
     }
 }

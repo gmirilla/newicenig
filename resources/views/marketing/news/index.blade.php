@@ -1,9 +1,13 @@
+@php
+    $newsHeading = "What's happening at ".app(\App\Settings\BrandingSettings::class)->brand_short_name;
+@endphp
+
 <x-layouts.marketing title="News">
     <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <x-section-header
             align="center"
             eyebrow="News & Publications"
-            heading="What's happening at ICEN"
+            :heading="$newsHeading"
         />
 
         @if ($posts->isEmpty())

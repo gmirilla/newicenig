@@ -62,7 +62,7 @@
                                 <div class="relative flex flex-col items-start">
                     <div class="text-5xl font-extrabold text-green-100 select-none leading-none mb-3">04</div>
                     <h3 class="text-base font-bold text-slate-900 mb-2">Get Verified</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Receive your membership credentials by email after review and approval by ICEN.</p>
+                    <p class="text-sm text-slate-500 leading-relaxed">Receive your membership credentials by email after review and approval by {{ $branding->brand_short_name }}.</p>
                 </div>
                             </div>
         </div>

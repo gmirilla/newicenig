@@ -1,6 +1,5 @@
 @php
     $branding = app(\App\Settings\BrandingSettings::class);
-    $orgName = app(\App\Settings\GeneralSettings::class)->org_name;
 @endphp
 
 <footer class="bg-brand-surface text-accent-100">
@@ -38,7 +37,7 @@
     -->
 
         <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-accent-800 pt-6 sm:flex-row">
-            <p class="text-sm text-accent-300/80">&copy; {{ date('Y') }} {{ $orgName }}. All rights reserved.</p>
+            <p class="text-sm text-accent-300/80">&copy; {{ date('Y') }} {{ $branding->copyright_text }}</p>
         </div>
     </div>
 </footer>

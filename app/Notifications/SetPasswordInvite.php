@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Settings\BrandingSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -25,10 +26,12 @@ class SetPasswordInvite extends Notification implements ShouldQueue
             ['user' => $notifiable->getKey()],
         );
 
+        $brandShortName = app(BrandingSettings::class)->brand_short_name;
+
         return (new MailMessage)
-            ->subject('Welcome to ICEN — set your password')
+            ->subject("Welcome to {$brandShortName} — set your password")
             ->greeting("Welcome, {$notifiable->name}!")
-            ->line('Your ICEN membership application and payment were received. An account has been created for you.')
+            ->line("Your {$brandShortName} membership application and payment were received. An account has been created for you.")
             ->action('Set your password', $url)
             ->line('This link expires in 3 days. If you did not expect this email, you can ignore it.');
     }

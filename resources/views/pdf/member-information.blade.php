@@ -66,7 +66,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="org">Institute of Chartered Economists of Nigeria</div>
+        <div class="org">{{ app(\App\Settings\GeneralSettings::class)->org_name }}</div>
         <div class="subtitle">Member Information Sheet — {{ $membership->fullName() }}</div>
     </div>
 

@@ -1,4 +1,6 @@
 @php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+    $orgName = app(\App\Settings\GeneralSettings::class)->org_name;
     $stepLabels = [
         1 => 'Membership tier',
         2 => 'Personal details',
@@ -314,7 +316,7 @@
                 <div class="sm:col-span-2">
                     <label class="flex items-center gap-2">
                         <input type="checkbox" wire:model.live="belongs_to_other_institute" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
-                        <span class="text-sm text-slate-700 dark:text-slate-300">I belong to another professional institute similar to ICEN</span>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">I belong to another professional institute similar to {{ $brandShortName }}</span>
                     </label>
                 </div>
 
@@ -351,7 +353,7 @@
             <div class="mt-4 rounded-md bg-slate-50 p-4 text-sm text-slate-700 dark:bg-white/5 dark:text-slate-300">
                 I declare that the information provided in this application is true and correct to the best of my
                 knowledge, and I undertake to abide by the constitution, rules, and code of professional conduct of
-                the Institute of Chartered Economists of Nigeria.
+                {{ $orgName }}.
             </div>
 
             <div class="mt-6 grid gap-6 sm:grid-cols-2">

@@ -1,7 +1,12 @@
+@php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+    $aboutEyebrow = "About {$brandShortName}";
+@endphp
+
 <x-layouts.marketing title="About">
     <section class="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <x-section-header
-            eyebrow="About ICEN"
+            :eyebrow="$aboutEyebrow"
             heading="Setting the standard for economic practice in Nigeria"
         />
 

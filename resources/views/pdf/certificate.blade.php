@@ -66,7 +66,7 @@
 <body>
     <div class="border">
         <p class="eyebrow">Certificate of Membership</p>
-        <p class="org">Institute of Chartered Economists of Nigeria</p>
+        <p class="org">{{ app(\App\Settings\GeneralSettings::class)->org_name }}</p>
 
         <h1>This certifies that</h1>
         <p class="name">{{ $membership->fullName() }}</p>

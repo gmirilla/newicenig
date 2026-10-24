@@ -8,6 +8,7 @@
     @php
         $membership = auth()->user()->currentMembership();
         $isRevoked = $membership?->status === \App\Enums\MembershipStatus::Revoked;
+        $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
         $latestNotices = $isRevoked
             ? collect()
             : \App\Models\Notice::visible()
@@ -129,7 +130,7 @@
             <x-card>
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Your membership has been revoked</h3>
                 <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                    Your ICEN membership has been revoked, and access to the notice board and member documents has been restricted. If you believe this is in error, please contact ICEN support.
+                    Your {{ $brandShortName }} membership has been revoked, and access to the notice board and member documents has been restricted. If you believe this is in error, please contact {{ $brandShortName }} support.
                 </p>
             </x-card>
         @elseif (! $membership)

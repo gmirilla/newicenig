@@ -1,4 +1,9 @@
-<x-layouts.marketing title="Join ICEN">
+@php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+    $joinPageTitle = "Join {$brandShortName}";
+@endphp
+
+<x-layouts.marketing :title="$joinPageTitle">
     <section class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <x-section-header
             align="center"

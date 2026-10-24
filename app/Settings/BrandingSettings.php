@@ -43,6 +43,12 @@ class BrandingSettings extends Settings
     /** Used as the site's meta description. */
     public ?string $site_tagline;
 
+    /** The intro paragraph under "Join the Institute" on the membership page. */
+    public string $membership_intro;
+
+    /** Follows "© {year} " in the footer — kept separate from GeneralSettings::$org_name since the legal copyright holder can differ from the public-facing name. */
+    public string $copyright_text;
+
     public static function group(): string
     {
         return 'branding';

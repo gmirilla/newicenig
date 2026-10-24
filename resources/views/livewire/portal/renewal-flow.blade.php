@@ -1,14 +1,18 @@
+@php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+@endphp
+
 <div>
     @if (! $this->membership)
         @guest
             <x-card>
                 <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Find your membership</h3>
-                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Enter your ICEN membership number and the email address on file to renew without logging in.</p>
+                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Enter your {{ $brandShortName }} membership number and the email address on file to renew without logging in.</p>
 
                 <form wire:submit="lookup" class="mt-6 space-y-4">
                     <div>
                         <x-input-label for="lookupMembershipNumber" value="Membership number" />
-                        <x-text-input id="lookupMembershipNumber" type="text" class="mt-1 block w-full" wire:model="lookupMembershipNumber" required autofocus placeholder="ICEN/2024/00123" />
+                        <x-text-input id="lookupMembershipNumber" type="text" class="mt-1 block w-full" wire:model="lookupMembershipNumber" required autofocus placeholder="{{ $brandShortName }}/2024/00123" />
                         <x-input-error :messages="$errors->get('lookupMembershipNumber')" class="mt-2" />
                     </div>
 
@@ -19,7 +23,7 @@
                     </div>
 
                     <div>
-                        <x-input-label for="lookupYearOfInduction" value="Year of induction into ICEN" />
+                        <x-input-label for="lookupYearOfInduction" value="Year of induction into {{ $brandShortName }}" />
                         <x-text-input id="lookupYearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
                         <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
                     </div>
@@ -27,7 +31,7 @@
                     @if ($lookupFailed)
                         <div>
                             <p class="text-sm text-red-600 dark:text-red-400">
-                                We couldn't find a membership matching those details. Double-check your membership number and email, <a href="https://icennig.org.ng/contact" class="underline">contact the Secretariat</a> or <a href="{{ route('join') }}" class="underline">apply for a new membership</a>.
+                                We couldn't find a membership matching those details. Double-check your membership number and email, <a href="{{ route('contact') }}" class="underline">contact the Secretariat</a> or <a href="{{ route('join') }}" class="underline">apply for a new membership</a>.
                             </p>
                         </div>
                     @endif
@@ -37,7 +41,7 @@
                             <span wire:loading.remove wire:target="lookup">Find my membership</span>
                             <span wire:loading wire:target="lookup">Searching…</span>
                         </x-button>
-                        <x-button href="https://icennig.org.ng/contact" target="_blank" variant="secondary" class="w-full justify-center">
+                        <x-button href="{{ route('contact') }}" target="_blank" variant="secondary" class="w-full justify-center">
                             Contact Secretariat
                         </x-button>
                     </div>
@@ -81,7 +85,7 @@
 
             @auth
                 <div class="mt-6">
-                    <x-input-label for="yearOfInduction" value="Year of induction into ICEN" />
+                    <x-input-label for="yearOfInduction" value="Year of induction into {{ $brandShortName }}" />
                     <x-text-input id="yearOfInduction" type="number" min="1960" max="{{ now()->year }}" class="mt-1 block w-full" wire:model="yearOfInduction" required />
                     <x-input-error :messages="$errors->get('yearOfInduction')" class="mt-2" />
                 </div>

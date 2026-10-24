@@ -7,6 +7,7 @@ use App\Livewire\Portal\Concerns\HandlesPaymentMethod;
 use App\Models\MembershipRenewal;
 use App\Models\MembershipTier;
 use App\Models\UserMembership;
+use App\Settings\BrandingSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -56,10 +57,12 @@ class RenewalFlow extends Component
 
     public function getRenewalIneligibleMessageProperty(): ?string
     {
+        $brandShortName = app(BrandingSettings::class)->brand_short_name;
+
         return match ($this->membership?->status) {
-            MembershipStatus::PendingPayment => 'Your original application payment was never completed. Please contact ICEN support to complete your application before renewing.',
+            MembershipStatus::PendingPayment => "Your original application payment was never completed. Please contact {$brandShortName} support to complete your application before renewing.",
             MembershipStatus::PendingReview => 'Your membership application is still under review. There is nothing to renew yet — you will be notified once it is approved.',
-            default => 'This membership record is not currently eligible for renewal. Please contact ICEN support.',
+            default => "This membership record is not currently eligible for renewal. Please contact {$brandShortName} support.",
         };
     }
 

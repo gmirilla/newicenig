@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Services\Branding\BrandingPresenter;
+use App\Settings\BrandingSettings;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,28 +25,25 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Filament boots every registered panel as part of booting the
+        // framework itself — including for `php artisan migrate` on a
+        // brand-new database, before the `settings` table this depends on
+        // exists. Falling back to the original literal values on any
+        // failure (missing table, a settings migration not yet run, ...)
+        // keeps that bootstrap-time path working regardless; real requests
+        // get the configured branding as normal once migrations have run.
+        $branding = $this->resolveBranding();
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('ICEN')
-            ->brandLogo(asset('images/icen-mark.jpg'))
-            ->favicon(asset('images/icen-mark.jpg'))
+            ->brandName($branding['short_name'])
+            ->brandLogo($branding['logo_url'])
+            ->favicon($branding['favicon_url'])
             ->colors([
-                'primary' => [
-                    50 => '240, 253, 244',
-                    100 => '220, 252, 231',
-                    200 => '187, 247, 208',
-                    300 => '134, 239, 172',
-                    400 => '74, 222, 128',
-                    500 => '22, 163, 74',
-                    600 => '21, 128, 61',
-                    700 => '22, 101, 52',
-                    800 => '20, 83, 45',
-                    900 => '15, 61, 34',
-                    950 => '5, 46, 22',
-                ],
+                'primary' => Color::hex($branding['color']),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -70,5 +69,30 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * @return array{short_name: string, logo_url: string, favicon_url: string, color: string}
+     */
+    protected function resolveBranding(): array
+    {
+        try {
+            $branding = app(BrandingSettings::class);
+            $presenter = app(BrandingPresenter::class);
+
+            return [
+                'short_name' => $branding->brand_short_name,
+                'logo_url' => $presenter->logoUrl(),
+                'favicon_url' => $presenter->faviconUrl(),
+                'color' => $branding->color_brand,
+            ];
+        } catch (\Throwable) {
+            return [
+                'short_name' => 'ICEN',
+                'logo_url' => asset('images/icen-mark.jpg'),
+                'favicon_url' => asset('images/icen-mark.jpg'),
+                'color' => '#16a34a',
+            ];
+        }
     }
 }

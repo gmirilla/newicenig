@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\User;
 use App\Models\UserMembership;
+use App\Settings\BrandingSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,8 +32,10 @@ class MembershipExpiringReminder extends Notification implements ShouldQueue
         // login-gated member portal, so send them to the public lookup page.
         $renewUrl = $notifiable instanceof User ? route('member.renew') : route('renew.lookup');
 
+        $brandShortName = app(BrandingSettings::class)->brand_short_name;
+
         return (new MailMessage)
-            ->subject("Your ICEN membership expires in {$this->daysRemaining} days")
+            ->subject("Your {$brandShortName} membership expires in {$this->daysRemaining} days")
             ->greeting("Hi {$this->membership->fullName()},")
             ->line("Your {$this->membership->membershipTier->name} membership expires on {$this->membership->expires_at->format('F j, Y')}.")
             ->line('Renew now to keep your certification and member benefits active without interruption.')

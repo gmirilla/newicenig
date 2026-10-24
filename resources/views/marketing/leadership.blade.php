@@ -1,10 +1,15 @@
+@php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+    $leadershipSubheading = "{$brandShortName} is governed by a council of senior economists elected to represent the profession and steward the Institute's standards.";
+@endphp
+
 <x-layouts.marketing title="Leadership">
     <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <x-section-header
             align="center"
             eyebrow="Governing Council"
             heading="Meet the leadership"
-            subheading="ICEN is governed by a council of senior economists elected to represent the profession and steward the Institute's standards."
+            :subheading="$leadershipSubheading"
         />
 
         @if ($teamMembers->isEmpty())

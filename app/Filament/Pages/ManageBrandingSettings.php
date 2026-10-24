@@ -94,9 +94,23 @@ class ManageBrandingSettings extends Page implements HasForms
                         Textarea::make('hero_subheadline')->label('Subheading')->required()->rows(3)->columnSpanFull(),
                         TextInput::make('hero_cta_label')->label('Call-to-action button text')->required(),
                     ]),
+                Section::make('Membership page')
+                    ->components([
+                        Textarea::make('membership_intro')
+                            ->label('Intro paragraph')
+                            ->helperText('Shown under "Join the Institute" on the Membership page.')
+                            ->required()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
                 Section::make('Footer & SEO')
                     ->components([
                         Textarea::make('footer_tagline')->label('Footer tagline')->required()->rows(2)->columnSpanFull(),
+                        TextInput::make('copyright_text')
+                            ->label('Copyright line')
+                            ->helperText('Shown in the footer after "© '.date('Y').' " — the year is always current, so don\'t include it here.')
+                            ->required()
+                            ->columnSpanFull(),
                         TextInput::make('site_tagline')
                             ->label('Site meta description')
                             ->helperText('Used for search engines and link previews. Leave empty to omit.')

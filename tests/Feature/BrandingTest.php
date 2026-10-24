@@ -59,6 +59,7 @@ it('renders the branding style and welcome page using configured values', functi
     $settings->hero_cta_label = 'Join now';
     $settings->footer_tagline = 'A custom footer tagline.';
     $settings->site_tagline = 'A custom meta description.';
+    $settings->copyright_text = 'A Custom Org Ltd. All rights reserved.';
     $settings->save();
 
     $response = $this->get('/');
@@ -69,4 +70,13 @@ it('renders the branding style and welcome page using configured values', functi
     $response->assertSee('Join now');
     $response->assertSee('A custom footer tagline.');
     $response->assertSee('A custom meta description.');
+    $response->assertSee('A Custom Org Ltd. All rights reserved.');
+});
+
+it('renders the configured membership page intro text', function () {
+    $settings = app(BrandingSettings::class);
+    $settings->membership_intro = 'A totally custom membership pitch.';
+    $settings->save();
+
+    $this->get('/membership')->assertSee('A totally custom membership pitch.');
 });

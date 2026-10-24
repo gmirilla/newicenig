@@ -1,10 +1,16 @@
+@php
+    $brandShortName = app(\App\Settings\BrandingSettings::class)->brand_short_name;
+    $diasporaHeading = "{$brandShortName} Diaspora Membership";
+    $diasporaSubheading = "{$brandShortName} welcomes chartered economists living outside Nigeria. If you're applying from abroad, you can pay your membership fee by bank transfer to one of our official {$brandShortName} Diaspora accounts below — no Nigerian bank account required.";
+@endphp
+
 <x-layouts.marketing title="Diaspora Membership">
     <section class="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <x-section-header
             align="center"
             eyebrow="For members abroad"
-            heading="ICEN Diaspora Membership"
-            subheading="ICEN welcomes chartered economists living outside Nigeria. If you're applying from abroad, you can pay your membership fee by bank transfer to one of our official ICEN Diaspora accounts below — no Nigerian bank account required."
+            :heading="$diasporaHeading"
+            :subheading="$diasporaSubheading"
         />
     </section>
 
@@ -14,7 +20,7 @@
             <ol class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
                 <li class="flex gap-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">1</span>
-                    <span>Transfer your membership application fee to one of the official ICEN Diaspora bank accounts listed below.</span>
+                    <span>Transfer your membership application fee to one of the official {{ $brandShortName }} Diaspora bank accounts listed below.</span>
                 </li>
                 <li class="flex gap-3">
                     <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-400">2</span>
@@ -64,7 +70,7 @@
     </section>
 
     <section class="mx-auto max-w-4xl px-4 pb-16 sm:px-6 lg:px-8">
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Official ICEN Diaspora accounts</h3>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Official {{ $brandShortName }} Diaspora accounts</h3>
 
         @if ($bankAccounts->isEmpty())
             <x-card class="mt-4">
